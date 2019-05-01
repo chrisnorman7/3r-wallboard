@@ -16,8 +16,6 @@ main.hidden = true
 const status = document.getElementById("status")
 const volunteers = document.getElementById("volunteers")
 
-const emailStats = document.getElementById("emailStats")
-
 function loadJSON(url, func, onerror) {
     let req = new XMLHttpRequest()
     req.open("GET", url)
@@ -32,10 +30,12 @@ function startTasks() {
     loadVolunteers()
     setInterval(loadEmailStats, emailInterval)
     loadEmailStats()
+    setInterval(loadSmsStats, emailInterval)
+    loadSmsStats()
 }
 
 window.onload = () => {
-    loadJSON(baseURL + "authenticated", (data) => {
+    loadJSON(baseURL + "authenticated/", (data) => {
         if (data) {
             startTasks()
         } else {
@@ -74,7 +74,8 @@ function loadVolunteers() {
             let i = document.createElement("img")
             i.src = `${baseURL}thumb/${volunteer.id}`
             i.alt = "View in directory"
-            cell.appendChild(i)
+            a.appendChild(i)
+            cell.appendChild(a)
             row.appendChild(cell)
             if (cellCounter == 12) {
                 row = null
@@ -84,15 +85,40 @@ function loadVolunteers() {
     }, () => status.innerText = "Could not get volunteer list.")
 }
 
-function loadEmailStats() {
-    let req = new XMLHttpRequest()
-    req.onerror = () => status.innerText = "Unable to retrieve email statistics."
-    req.onload = () => {
-        let tbl = req.response.getElementsByTagName("table")[1]
-        emailStats.appendChild(tbl)
+function loadTextTable(data, unanswered, oldest) {
+    unanswered.innerText = data.unanswered
+    let o = data.oldest
+    let n = Number(o.split(":")[0])
+    oldest.innerText = o
+    let fs, bg = null
+    if (n < 2) {
+        fs = "medium"
+        bg = "green"
+    } else if (n < 3) {
+        fs = "large"
+        bg = "orange"
+    } else if (n < 4) {
+        fs = "x-large"
+        bg = "red"
+    } else {
+        fs = "xx-large"
+        bg = "black"
     }
-    req.open("GET", "http://www.ear-mail.org.uk/")
-    req.send()
+    for (let style of [unanswered.style, oldest.style]) {
+        style.color = "white"
+        style.fontSize = fs
+        style.background = bg
+    }
+}
+
+function loadEmailStats() {
+    loadJSON(baseURL + "email/", (data) => {
+        loadTextTable(data, document.getElementById("unansweredEmail"), document.getElementById("oldestEmail"))
+    }, () => status.innerText = "Unable to retrieve email statistics")
+}
+
+function loadSmsStats() {
+    loadJSON(baseURL + "sms/", (data) => loadTextTable(data, document.getElementById("unansweredSms"), document.getElementById("oldestSms")), () => status.innerText = "Unable to retrieve SMS statistics")
 }
 
 loginForm.onsubmit = (e) => {

@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from flask import abort, Flask, jsonify, render_template, request
 from requests import Session
 
@@ -18,9 +19,13 @@ def get_auth():
     return auth
 
 
-def get_url(url):
+def get_url(url, auth=True):
     """Get a URL, returning abort or the content retrieved from the URL."""
-    r = http.get(url, auth=get_auth())
+    if auth:
+        auth = get_auth()
+    else:
+        auth = None
+    r = http.get(url, auth=auth)
     app.config['3R_AUTHENTICATED'] = r.ok
     if r.ok:
         return r.content
@@ -54,6 +59,28 @@ def login():
 @app.route('/thumb/<int:id>')
 def thumb(id):
     return get_url(f'https://www.3r.org.uk/directory/{id}/photos/thumb.jpg',)
+
+
+def textual_stats(url):
+    s = BeautifulSoup(get_url(url, auth=False), 'html.parser')
+    rows = s.find_all('table')[2].find_all('tr')
+    try:
+        unanswered = int(rows[4].find_all('td')[0].text)
+        oldest = rows[5].find_all('td')[0].text.split('(')[1].strip(')')
+    except ValueError:
+        unanswered = int(rows[3].find_all('td')[0].text)
+        oldest = rows[4].find_all('td')[0].text.split('(')[1].strip(')')
+    return jsonify(dict(unanswered=unanswered, oldest=oldest))
+
+
+@app.route('/email/')
+def get_email_stats():
+    return textual_stats('http://www.ear-mail.org.uk/')
+
+
+@app.route('/sms/')
+def sms():
+    return textual_stats('http://smsstatus.samaritans.org/')
 
 
 if __name__ == '__main__':
