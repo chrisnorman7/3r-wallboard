@@ -54,10 +54,10 @@ function loadVolunteers() {
             cellCounter += 1
             if (row === null) {
                 row = document.createElement("tr")
-                volunteers.appendChild(row)
+                volunteers.rows.push(row)
             }
             let cell = document.createElement("td")
-            row.appendChild(cell)
+            row.cells.push(cell)
             cell.innerHTML = `${volunteer.name}<br><a href="https://www.3r.org.uk/directory/${volunteer.id}" target="_new"><img src="${baseURL}thumb/${volunteer.id}" alt="View in directory"></a>`
             if (cellCounter == 12) {
                 row = null
