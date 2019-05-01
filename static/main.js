@@ -57,6 +57,8 @@ function loadVolunteers() {
                 volunteers.rows.push(row)
             }
             let cell = document.createElement("td")
+            cell.id = volunteer.id
+            cell.classList.push("volunteer")
             row.cells.push(cell)
             cell.innerHTML = `${volunteer.name}<br><a href="https://www.3r.org.uk/directory/${volunteer.id}" target="_new"><img src="${baseURL}thumb/${volunteer.id}" alt="View in directory"></a>`
             if (cellCounter == 12) {
