@@ -95,7 +95,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '-p', '--port', type=int, default=8398, help='The port to listen on'
+    '-p', '--port', type=int, default=7267, help='The port to listen on'
 )
 
 parser.add_argument(
