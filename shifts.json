@@ -1,0 +1,164 @@
+[
+    {
+        "name": "Duty Deputy - - - 6am - 6am",
+        "time": "All day",
+        "volunteers": [
+            {
+                "name": "Trevor 589",
+                "id": 24877,
+                "details": [
+                    {
+                        "name": "Telephone (Landline)",
+                        "value": "01926 612340"
+                    },
+                    {
+                        "name": "Telephone (Mobile)",
+                        "value": "07729 655 004"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Day Leader",
+        "time": "07:00-10:00",
+        "volunteers": [
+            {
+                "name": "Eve 784",
+                "id": 106012,
+                "details": [
+                    {
+                        "name": "Telephone (Mobile)",
+                        "value": "07527673873"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Daytime Duty",
+        "time": "07:00-10:00",
+        "volunteers": [
+            {
+                "name": "Julie 795",
+                "id": 109166,
+                "details": [
+                    {
+                        "name": "Telephone (Landline)",
+                        "value": "02477 987453"
+                    },
+                    {
+                        "name": "Telephone (Mobile)",
+                        "value": "07712 595090"
+                    }
+                ]
+            },
+            {
+                "name": "Claire-Louise 802",
+                "id": 79437,
+                "details": [
+                    {
+                        "name": "Telephone (Landline)",
+                        "value": "024 7666 1455"
+                    },
+                    {
+                        "name": "Telephone (Mobile)",
+                        "value": "07535028453"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Day Leader",
+        "time": "10:00-13:00",
+        "volunteers": [
+            {
+                "name": "Susie 733",
+                "id": 85480,
+                "details": [
+                    {
+                        "name": "Telephone (Mobile)",
+                        "value": "07773 684855"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Daytime Duty",
+        "time": "10:00-13:00",
+        "volunteers": [
+            {
+                "name": "Vanessa 777",
+                "id": 101389,
+                "details": [
+                    {
+                        "name": "Telephone (Mobile)",
+                        "value": "07860 878984"
+                    }
+                ]
+            },
+            {
+                "name": "Rebecca P803",
+                "id": 109191,
+                "details": [
+                    {
+                        "name": "Telephone (Mobile)",
+                        "value": "07747 429644 "
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Daytime Duty - Phones off first hour",
+        "time": "13:00-16:00",
+        "volunteers": [
+            {
+                "name": "Nick 763",
+                "id": 101384,
+                "details": [
+                    {
+                        "name": "Telephone (Landline)",
+                        "value": "01926 715074"
+                    },
+                    {
+                        "name": "Telephone (Mobile)",
+                        "value": "07411 104489"
+                    }
+                ]
+            },
+            {
+                "name": "Penny 576",
+                "id": 19592,
+                "details": [
+                    {
+                        "name": "Telephone (Landline)",
+                        "value": "01926852315"
+                    },
+                    {
+                        "name": "Telephone (Mobile)",
+                        "value": "07450 927179"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Day Leader",
+        "time": "13:00-16:00",
+        "volunteers": [
+            {
+                "name": "Eve 784",
+                "id": 106012,
+                "details": [
+                    {
+                        "name": "Telephone (Mobile)",
+                        "value": "07527673873"
+                    }
+                ]
+            }
+        ]
+    }
+]

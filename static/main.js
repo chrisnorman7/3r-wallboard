@@ -1,8 +1,11 @@
 const baseURL = `${location.protocol}//${location.host}/`
 const loginURL = baseURL + "login/"
 const directoryURL = baseURL + "directory/"
+const shiftURL = baseURL + "shifts"
 const volInterval = 3600 * 1000
 const emailInterval = 60000
+const smsInterval = 60000
+const shiftInterval = 60000
 
 const loginForm = document.getElementById("loginForm")
 loginForm.hidden = true
@@ -14,24 +17,52 @@ const main = document.getElementById("main")
 main.hidden = true
 
 const status = document.getElementById("status")
+const shifts = document.getElementById("shifts")
 const volunteers = document.getElementById("volunteers")
 
 function loadJSON(url, func, onerror) {
     let req = new XMLHttpRequest()
     req.open("GET", url)
-    req.onload = () => func(JSON.parse(req.response))
-    req.onerror = onerror
+    req.onload = () => {
+        let j = null
+        try {
+            j = JSON.parse(req.response)
+        }
+        catch (err) {
+            requireLogin()
+        }
+        if (j !== null) {
+            func(j)
+        }
+    }
+    req.onerror = () => {
+        requireLogin()
+        onerror
+    }
     req.send()
 }
 
+const tasks = []
+
+function startTask(func, interval) {
+    tasks.push(setInterval(func, interval))
+    func()
+}
+
 function startTasks() {
+    for (let task of tasks) {
+        clearInterval(task)
+    }
     main.hidden = false
-    setInterval(loadVolunteers, volInterval)
-    loadVolunteers()
-    setInterval(loadEmailStats, emailInterval)
-    loadEmailStats()
-    setInterval(loadSmsStats, emailInterval)
-    loadSmsStats()
+    startTask(loadVolunteers, volInterval)
+    startTask(loadEmailStats, emailInterval)
+    startTask(loadSmsStats, smsInterval)
+    startTask(loadShifts, shiftInterval)
+}
+
+function requireLogin() {
+    loginForm.hidden = false
+    status.innerText = "Awaiting login..."
 }
 
 window.onload = () => {
@@ -39,10 +70,51 @@ window.onload = () => {
         if (data) {
             startTasks()
         } else {
-            loginForm.hidden = false
-            status.innerText = "Awaiting login..."
+            requireLogin()
         }
-    }, () => status.innerText = "Could not ascertain authentication state.")
+    }, () => status.innerText = "Unable to ascertain authentication state.")
+}
+
+function volunteerLink(volunteer, altText) {
+    let a = document.createElement("a")
+    a.target = "_new"
+    a.href = `https://www.3r.org.uk/directory/${volunteer.id}`
+    let i = document.createElement("img")
+    i.src = `${baseURL}thumb/${volunteer.id}`
+    if (altText === undefined) {
+        altText = "View in directory"
+    }
+    i.alt = altText
+    a.appendChild(i)
+    return a
+}
+
+function loadShifts() {
+    loadJSON(shiftURL, (data) => {
+        while (shifts.childElementCount) {
+            shifts.removeChild(shifts.firstChild)
+        }
+        let h2 = document.createElement("h2")
+        h2.innerText = "Current Shifts"
+        shifts.appendChild(h2)
+        for (let shift of data) {
+            let h3 = document.createElement("h3")
+            h3.innerText = `${shift.name} (${shift.time})`
+            shifts.appendChild(h3)
+            for (let volunteer of shift.volunteers) {
+                let h4 = document.createElement("h4")
+                h4.appendChild(volunteerLink(volunteer, volunteer.name))
+                shifts.appendChild(h4)
+                let l = document.createElement("ul")
+                for (let detail of volunteer.details) {
+                    let li = document.createElement("li")
+                    li.innerText = `${detail.name}: ${detail.value}`
+                    l.appendChild(li)
+                }
+                shifts.appendChild(l)
+            }
+        }
+    }, () => status.innerText = "Unable to load shifts.")
 }
 
 function loadVolunteers() {
@@ -68,14 +140,7 @@ function loadVolunteers() {
             span.innerText = volunteer.name
             cell.appendChild(span)
             cell.appendChild(document.createElement("br"))
-            let a = document.createElement("a")
-            a.target = "_new"
-            a.href = `https://www.3r.org.uk/directory/${volunteer.id}`
-            let i = document.createElement("img")
-            i.src = `${baseURL}thumb/${volunteer.id}`
-            i.alt = "View in directory"
-            a.appendChild(i)
-            cell.appendChild(a)
+            cell.appendChild(volunteerLink(volunteer))
             row.appendChild(cell)
             if (cellCounter == 12) {
                 row = null
@@ -112,13 +177,19 @@ function loadTextTable(data, unanswered, oldest) {
 }
 
 function loadEmailStats() {
-    loadJSON(baseURL + "email/", (data) => {
-        loadTextTable(data, document.getElementById("unansweredEmail"), document.getElementById("oldestEmail"))
-    }, () => status.innerText = "Unable to retrieve email statistics")
+    loadJSON(
+        baseURL + "email/",
+        (data) => loadTextTable(data, document.getElementById("unansweredEmail"), document.getElementById("oldestEmail")),
+        () => status.innerText = "Unable to retrieve email statistics"
+    )
 }
 
 function loadSmsStats() {
-    loadJSON(baseURL + "sms/", (data) => loadTextTable(data, document.getElementById("unansweredSms"), document.getElementById("oldestSms")), () => status.innerText = "Unable to retrieve SMS statistics")
+    loadJSON(
+        baseURL + "sms/",
+        (data) => loadTextTable(data, document.getElementById("unansweredSms"), document.getElementById("oldestSms")),
+        () => status.innerText = "Unable to retrieve SMS statistics"
+    )
 }
 
 loginForm.onsubmit = (e) => {

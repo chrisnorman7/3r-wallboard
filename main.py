@@ -69,9 +69,14 @@ def login():
     return 'Thanks.'
 
 
+images = {}
+
+
 @app.route('/thumb/<int:id>')
 def thumb(id):
-    return get_url(f'https://www.3r.org.uk/directory/{id}/photos/thumb.jpg',)
+    if id not in images:
+        images[id] = get_url(f'{base_url}directory/{id}/photos/thumb.jpg',)
+    return images[id]
 
 
 def textual_stats(url):
@@ -100,17 +105,22 @@ def sms():
 def shifts():
     shifts = get_url(shift_url, json=True)['shifts']
     now = datetime.now()
-    results = {}
+    results = []
+    volunteers = {}
     for shift in shifts:
         occupants = shift['volunteer_shifts']
         rota_name = shift['rota']['name']
         if not occupants or rota_name == 'On holiday':
             continue
         start = parse_date(shift['start_datetime'])
-        volunteers = {}
-        if start.year >= now.year and start.day == now.day and \
-           start.hour <= now.hour:
-            end = start + timedelta(seconds=shift['duration'])
+        end = start + timedelta(seconds=shift['duration'])
+        if (
+            start.year in (
+                now.year, now.year - 1, now.year + 1
+            ) and start.day in (
+                now.day, now.day - 1
+            ) and start.hour <= now.hour and end.hour > now.hour
+        ):
             start = start.strftime(time_format)
             end = end.strftime(time_format)
             if start == end:
@@ -149,8 +159,8 @@ def shifts():
                         details=volunteer['details']
                     )
                 )
-            results[rota_name] = d
-    return results
+            results.append(d)
+    return jsonify(results)
 
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
