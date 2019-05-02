@@ -153,8 +153,8 @@ function loadVolunteers() {
         let listenersTable = document.getElementById("listeners")
         let supportsTable = document.getElementById("listeners")
         for (let tag of [listenersTable, supportsTable]) {
-            for (let i = 0; i < tag.rows.length; i++) {
-                tag.deleteRow(i)
+            while (tag.rows.length) {
+                tag.deleteRow(0)
             }
         }
         let listenersCellCounter = 0
@@ -162,17 +162,20 @@ function loadVolunteers() {
         let supportsCellCounter = 0
         let supportsRow = null
         for (let volunteer of data.sort((a, b) => a.id - b.id)) {
+            let table = null
             let row = null
             let cellCounter = null
-            let table = null
+            let volunteerType = null
             if (volunteer.is_support_person) {
+                volunteerType  = "support-volunteer"
+                table = supportsTable
                 row = supportsRow
                 cellCounter = supportsCellCounter
-                table = supportsTable
             } else {
+                volunteerType  = "listening-volunteer"
+                table = listenersTable
                 row = listenersRow
                 cellCounter = listenersCellCounter
-                table = listenersTable
             }
             if (row === null) {
                 row = document.createElement("tr")
@@ -181,6 +184,7 @@ function loadVolunteers() {
             let cell = document.createElement("td")
             cell.id = volunteer.id
             cell.classList.add("volunteer")
+            cell.classList.add(volunteerType)
             let span = document.createElement("span")
             span.style.textAlign = "center"
             span.innerText = volunteer.name
@@ -191,6 +195,8 @@ function loadVolunteers() {
             if (cellCounter == 12) {
                 row = null
                 cellCounter = 0
+            } else {
+                cellCounter++
             }
         }
     }, () => status.innerText = "Could not get volunteer list.")
