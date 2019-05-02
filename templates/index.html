@@ -72,6 +72,10 @@
         <script src="/static/main.js?28"></script>
         {% if not single %}
         <script src="/static/slideshow.js?1"></script>
+        {% else %}
+        <script>
+        startSlideshow = null
+        </script>
         {% endif %}
     </body>
 </html>
