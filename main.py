@@ -27,6 +27,7 @@ app.config['3R_USERNAME'] = None
 app.config['3R_PASSWORD'] = None
 app.config['3R_AUTHENTICATED'] = False
 app.config['VERSION'] = os.popen('git describe --tags --always').read().strip()
+app.config['SHIFT_VERSION'] = 0
 
 
 def get_auth():
@@ -107,6 +108,10 @@ def sms():
     return textual_stats('http://smsstatus.samaritans.org/')
 
 
+loaded_shifts = {}
+shift_volunteers = {}
+
+
 @app.route('/shifts/')
 def shifts():
     now = datetime.now()
@@ -118,6 +123,7 @@ def shifts():
     results = []
     volunteers = {}
     for shift in shifts:
+        sid = shift['id']
         occupants = shift['volunteer_shifts']
         rota_name = shift['rota']['name']
         if not occupants or rota_name == 'On holiday':
@@ -137,46 +143,51 @@ def shifts():
                 ) and start.hour <= now.hour and end.hour > now.hour
             )
         ):
-            start = start.strftime(time_format)
-            end = end.strftime(time_format)
-            if start == end:
-                time = 'All day'
-            else:
-                time = f'{start}-{end}'
-            name = rota_name
-            if shift['title']:
-                name = f'{name} - {shift["title"]}'
-            d = dict(name=name, time=time, volunteers=[])
-            for signup in occupants:
-                volunteer = signup['volunteer']
-                id = volunteer['id']
-                if id not in volunteers:
-                    volunteers[id] = get_url(
-                        volunteer_url % id, json=True
-                    )['volunteer']
-                volunteer = volunteers[id]
-                props = volunteer['volunteer_properties']
-                volunteer['details'] = []
-                for prop in props:
-                    code = prop['code']
-                    name = prop['name']
-                    value = prop['value']
-                    if code.startswith('telephone'):
-                        volunteer['details'].append(
-                            dict(name=name, value=value)
+            ids = [v['id'] for v in occupants]
+            if sid not in loaded_shifts or shift_volunteers[sid] != ids:
+                app.config['SHIFT_VERSION'] += 1
+                shift_volunteers[sid] = ids
+                start = start.strftime(time_format)
+                end = end.strftime(time_format)
+                if start == end:
+                    time = 'All day'
+                else:
+                    time = f'{start}-{end}'
+                name = rota_name
+                if shift['title']:
+                    name = f'{name} - {shift["title"]}'
+                d = dict(name=name, time=time, volunteers=[])
+                for signup in occupants:
+                    volunteer = signup['volunteer']
+                    id = volunteer['id']
+                    if id not in volunteers:
+                        volunteers[id] = get_url(
+                            volunteer_url % id, json=True
+                        )['volunteer']
+                    volunteer = volunteers[id]
+                    props = volunteer['volunteer_properties']
+                    volunteer['details'] = []
+                    for prop in props:
+                        code = prop['code']
+                        name = prop['name']
+                        value = prop['value']
+                        if code.startswith('telephone'):
+                            volunteer['details'].append(
+                                dict(name=name, value=value)
+                            )
+                        elif name == 'Friendly Name':
+                            volunteer['name'] = value
+                        else:
+                            continue  # Ignore all other properties.
+                    d['volunteers'].append(
+                        dict(
+                            name=volunteer['name'], id=id,
+                            details=volunteer['details']
                         )
-                    elif name == 'Friendly Name':
-                        volunteer['name'] = value
-                    else:
-                        continue  # Ignore all other properties.
-                d['volunteers'].append(
-                    dict(
-                        name=volunteer['name'], id=id,
-                        details=volunteer['details']
                     )
-                )
-            results.append(d)
-    return jsonify(results)
+                loaded_shifts[sid] = d
+            results.append(loaded_shifts[sid])
+    return jsonify(dict(version=app.config['SHIFT_VERSION'], results=results))
 
 
 @app.route('/version/')

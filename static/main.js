@@ -1,3 +1,4 @@
+let shiftVersion = null
 let version = null
 
 const baseURL = `${location.protocol}//${location.host}/`
@@ -118,10 +119,11 @@ function volunteerLink(volunteer, altText) {
 }
 
 function loadShifts() {
-    let old = status.innerText
-    status.innerText = "Loading shifts..."
-    let newValue = status.innerText
     loadJSON(shiftURL, (data) => {
+        if (data.version == shiftVersion) {
+            return
+        }
+        data = data["results"]
         while (shifts.childElementCount) {
             shifts.removeChild(shifts.firstChild)
         }
@@ -172,9 +174,6 @@ function loadShifts() {
                 t.appendChild(r)
             }
             shifts.appendChild(t)
-        }
-        if (status.innerText === newValue) {
-            status.innerText = old
         }
     }, () => status.innerText = "Unable to load shifts.")
 }
