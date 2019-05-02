@@ -14,6 +14,7 @@ from requests import Session
 
 date_format = '%Y-%m-%d'
 time_format = '%H:%M'
+shift_history_threshold = 5
 
 base_url = 'https://www.3r.org.uk/'
 directory_url = base_url + 'directory.json'
@@ -118,6 +119,7 @@ def shifts():
     shifts = get_url(shift_url + '?' + e, json=True)['shifts']
     results = []
     volunteers = {}
+    shifts_per_rota = {}
     for shift in shifts:
         occupants = shift['volunteer_shifts']
         rota_name = shift['rota']['name']
@@ -131,53 +133,62 @@ def shifts():
                     start.day == now.day
                 )
             ) or (
-                start.year in (
-                    now.year, now.year - 1, now.year + 1
-                ) and start.day in (
-                    now.day, now.day - 1
-                ) and start.hour <= now.hour and end.hour > now.hour
+                start.hour < now.hour and start.day == now.day
             )
         ):
-            app.config['SHIFT_VERSION'] += 1
-            start = start.strftime(time_format)
-            end = end.strftime(time_format)
-            if start == end:
-                time = 'All day'
-            else:
-                time = f'{start}-{end}'
-            name = rota_name
-            if shift['title']:
-                name = f'{name} - {shift["title"]}'
-            d = dict(name=name, time=time, volunteers=[])
-            for signup in occupants:
-                volunteer = signup['volunteer']
-                id = volunteer['id']
-                if id not in volunteers:
-                    volunteers[id] = get_url(
-                        volunteer_url % id, json=True
-                    )['volunteer']
-                volunteer = volunteers[id]
-                props = volunteer['volunteer_properties']
-                volunteer['details'] = []
-                for prop in props:
-                    code = prop['code']
-                    name = prop['name']
-                    value = prop['value']
-                    if code.startswith('telephone'):
-                        volunteer['details'].append(
-                            dict(name=name, value=value)
-                        )
-                    elif name == 'Friendly Name':
-                        volunteer['name'] = value
-                    else:
-                        continue  # Ignore all other properties.
-                d['volunteers'].append(
-                    dict(
-                        name=volunteer['name'], id=id,
-                        details=volunteer['details']
+            if rota_name not in shifts_per_rota:
+                shifts_per_rota[rota_name] = []
+            shift['start'] = start
+            shift['end'] = end
+            shift['occupants'] = occupants
+            shifts_per_rota[rota_name].append(shift)
+    for rota_name, shifts in shifts_per_rota.items():
+        shift = shifts[-1]
+        start = shift['start']
+        end = shift['end']
+        if start.hour != end.hour and (
+            now.hour - start.hour
+        ) > shift_history_threshold:
+            continue
+        start = start.strftime(time_format)
+        end = end.strftime(time_format)
+        if start == end:
+            time = 'All day'
+        else:
+            time = f'{start}-{end}'
+        name = rota_name
+        if shift['title']:
+            name = f'{name} - {shift["title"]}'
+        d = dict(name=name, time=time, volunteers=[])
+        for signup in shift['occupants']:
+            volunteer = signup['volunteer']
+            id = volunteer['id']
+            if id not in volunteers:
+                volunteers[id] = get_url(
+                    volunteer_url % id, json=True
+                )['volunteer']
+            volunteer = volunteers[id]
+            props = volunteer['volunteer_properties']
+            volunteer['details'] = []
+            for prop in props:
+                code = prop['code']
+                name = prop['name']
+                value = prop['value']
+                if code.startswith('telephone'):
+                    volunteer['details'].append(
+                        dict(name=name, value=value)
                     )
+                elif name == 'Friendly Name':
+                    volunteer['name'] = value
+                else:
+                    continue  # Ignore all other properties.
+            d['volunteers'].append(
+                dict(
+                    name=volunteer['name'], id=id,
+                    details=volunteer['details']
                 )
-            results.append(d)
+            )
+        results.append(d)
     return jsonify(results)
 
 
