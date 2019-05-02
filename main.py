@@ -186,6 +186,11 @@ def version():
     return app.config['VERSION']
 
 
+@app.route('/news/')
+def news():
+    return jsonify(get_url(base_url + 'news.json', json=True)['news_items'])
+
+
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 
 parser.add_argument(

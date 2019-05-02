@@ -5,12 +5,16 @@ const versionURL = baseURL + "version"
 const loginURL = baseURL + "login/"
 const directoryURL = baseURL + "directory/"
 const shiftURL = baseURL + "shifts"
+const newsURL = baseURL + "news"
+
 const updateInterval = 20000
 const volInterval = 3600 * 1000
 const emailInterval = 60000
 const smsInterval = 60000
 const shiftInterval = 60000
+const newsInterval = 1000 * 3600
 
+const news = document.getElementById("news")
 const loginForm = document.getElementById("loginForm")
 loginForm.hidden = true
 
@@ -22,6 +26,12 @@ main.hidden = true
 
 const status = document.getElementById("status")
 const shifts = document.getElementById("shifts")
+
+function clearElement(e) {
+    while (e.childElementCount) {
+        e.removeChild(e.firstChild)
+    }
+}
 
 function loadJSON(url, func, onerror) {
     let req = new XMLHttpRequest()
@@ -84,6 +94,22 @@ function startTasks() {
     startTask(loadEmailStats, emailInterval)
     startTask(loadSmsStats, smsInterval)
     startTask(loadShifts, shiftInterval)
+    startTask(() => {
+        loadJSON(newsURL, (data) => {
+            clearElement(news)
+            for (let item of data) {
+                let h3 = document.createElement("h3")
+                h3.innerText = item.title
+                news.appendChild(h3)
+                let h4 = document.createElement("h4")
+                h4.innerText = `${item.creator.name} (${new Date(item.created_at)})`
+                news.appendChild(h4)
+                let div = document.createElement("div")
+                div.innerHTML = item.body
+                news.appendChild(div)
+            }
+        })
+    }, newsInterval)
 }
 
 function requireLogin() {
@@ -119,9 +145,7 @@ function volunteerLink(volunteer, altText) {
 
 function loadShifts() {
     loadJSON(shiftURL, (data) => {
-        while (shifts.childElementCount) {
-            shifts.removeChild(shifts.firstChild)
-        }
+        clearElement(shifts)
         for (let shift of data) {
             let h3 = document.createElement("h3")
             h3.style.textAlign = "center"
