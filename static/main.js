@@ -61,6 +61,7 @@ function startTasks() {
 }
 
 function requireLogin() {
+    main.hidden = true
     loginForm.hidden = false
     status.innerText = "Awaiting login..."
 }
