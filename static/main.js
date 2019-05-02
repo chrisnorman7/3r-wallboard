@@ -18,7 +18,6 @@ main.hidden = true
 
 const status = document.getElementById("status")
 const shifts = document.getElementById("shifts")
-const volunteers = document.getElementById("volunteers")
 
 function loadJSON(url, func, onerror) {
     let req = new XMLHttpRequest()
@@ -123,16 +122,33 @@ function loadVolunteers() {
     loadJSON(directoryURL, (data) => {
         data = data.volunteers
         status.innerText = `Volunteers last loaded ${new Date()}.`
-        for (let i = 0; i < volunteers.rows.length; i++) {
-            volunteers.deleteRow(i)
+        let listenersTable = document.getElementById("listeners")
+        let supportsTable = document.getElementById("listeners")
+        for (let tag of [listenersTable, supportsTable]) {
+            for (let i = 0; i < tag.rows.length; i++) {
+                tag.deleteRow(i)
+            }
         }
-        let cellCounter = 0
-        let row = null
+        let listenersCellCounter = 0
+        let listenersRow = null
+        let supportsCellCounter = 0
+        let supportsRow = null
         for (let volunteer of data.sort((a, b) => a.id - b.id)) {
-            cellCounter += 1
+            let row = null
+            let cellCounter = null
+            let table = null
+            if (volunteer.is_support_person) {
+                row = supportsRow
+                cellCounter = supportsCellCounter
+                table = supportsTable
+            } else {
+                row = listenersRow
+                cellCounter = listenersCellCounter
+                table = listenersTable
+            }
             if (row === null) {
                 row = document.createElement("tr")
-                volunteers.appendChild(row)
+                table.appendChild(row)
             }
             let cell = document.createElement("td")
             cell.id = volunteer.id
