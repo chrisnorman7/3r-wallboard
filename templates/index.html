@@ -16,19 +16,25 @@
         </form>
         <div id="main"
             <div class="screen" id="screen1">
+                {% if not single %}
                 <h1>Branch Status</h1>
+                {% endif %}
                 <h2>Current Shifts</h2>
                 <div id="shifts"><p>Loading shifts...</p></div>
             </div>
             <div class="screen" id="screen2">
+                {% if not single %}
                 <h1>Volunteer Photos</h1>
+                {% endif %}
                 <h2>Listening Volunteers</h2>
                 <table id="listeners" border="1"></table>
                 <h2>Support Volunteers</h2>
                 <table id="supports" border="1"></table>
             </div>
             <div class="screen" id="screen3">
+                {% if not single %}
                 <h1>Text Communication Statistics</h1>
+                {% endif %}
                 <h2>Email statistics</h2>
                 <table border="1">
                     <tr>
@@ -53,12 +59,16 @@
                 </table>
             </div>
             <div class="screen" id="screen4">
+                {% if not single %}
                 <h1>Branch News</h1>
+                {% endif %}
                 <h2>News Items</h2>
                 <div id="news"><p>Loading news...</p></div>
             </div>
         </div>
-        <script src="/static/main.js?26"></script>
+        <script src="/static/main.js?27"></script>
+        {% if not single %}
         <script src="/static/slideshow.js?1"></script>
+        {% endif %}
     </body>
 </html>

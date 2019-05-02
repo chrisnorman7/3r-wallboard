@@ -58,6 +58,11 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/single/')
+def single():
+    return render_template('index.html', single=True)
+
+
 @app.route('/authenticated/')
 def authenticated():
     return jsonify(app.config['3R_AUTHENTICATED'])

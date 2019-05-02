@@ -112,7 +112,9 @@ function startTasks() {
             }
         })
     }, newsInterval)
-    startSlideshow()
+    if (startSlideshow !== undefined) {
+        startSlideshow()
+    }
 }
 
 function requireLogin() {
