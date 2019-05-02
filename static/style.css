@@ -21,3 +21,7 @@
 body {
     font-family: "varah", "varah-bold-italic", "varah-bold", "varah-bold-italic", "Times New Roman"
 }
+
+table, th, td {
+    border: 1px solid black;
+}

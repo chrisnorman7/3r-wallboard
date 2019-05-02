@@ -4,7 +4,7 @@
         <title>Three Rings Status Board</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="/static/style.css?1">
+        <link rel="stylesheet" type="text/css" href="/static/style.css?2">
     </head>
     <body>
         <p id="status" aria-live="polite" aria-atomic="false" aria-relevant="additions text">Loading...</p>
@@ -30,16 +30,16 @@
                 <h1>Volunteer Photos</h1>
                 {% endif %}
                 <h2>Listening Volunteers</h2>
-                <table id="listeners" border="1"></table>
+                <table id="listeners"></table>
                 <h2>Support Volunteers</h2>
-                <table id="supports" border="1"></table>
+                <table id="supports"></table>
             </div>
             <div class="screen" id="screen3">
                 {% if not single %}
                 <h1>Text Communication Statistics</h1>
                 {% endif %}
                 <h2>Email statistics</h2>
-                <table border="1">
+                <table>
                     <tr>
                         <th>Unanswered Emails</th>
                         <th>Age of oldest unanswered email</th>
@@ -50,7 +50,7 @@
                     </tr>
                 </table>
                 <h2>SMS Statistics</h2>
-                <table border="1">
+                <table>
                     <tr>
                         <th>Unanswered texts</th>
                         <th>Age of oldest unanswered text</th>
