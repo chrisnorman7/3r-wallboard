@@ -1,3 +1,5 @@
+import os
+
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
@@ -24,6 +26,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['3R_USERNAME'] = None
 app.config['3R_PASSWORD'] = None
 app.config['3R_AUTHENTICATED'] = False
+app.config['VERSION'] = os.popen('git describe --tags --always').read().strip()
 
 
 def get_auth():
@@ -174,6 +177,11 @@ def shifts():
                 )
             results.append(d)
     return jsonify(results)
+
+
+@app.route('/version/')
+def version():
+    return app.config['VERSION']
 
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)

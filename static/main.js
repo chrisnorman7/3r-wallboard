@@ -1,7 +1,11 @@
+let version = null
+
 const baseURL = `${location.protocol}//${location.host}/`
+const versionURL = baseURL + "version"
 const loginURL = baseURL + "login/"
 const directoryURL = baseURL + "directory/"
 const shiftURL = baseURL + "shifts"
+const updateInterval = 20000
 const volInterval = 3600 * 1000
 const emailInterval = 60000
 const smsInterval = 60000
@@ -41,6 +45,13 @@ function loadJSON(url, func, onerror) {
     req.send()
 }
 
+function getVersion(func) {
+    let req = new XMLHttpRequest()
+    req.onload = () => func(req.response)
+    req.open("GET", versionURL)
+    req.send()
+}
+
 const tasks = []
 
 function startTask(func, interval) {
@@ -48,11 +59,27 @@ function startTask(func, interval) {
     func()
 }
 
-function startTasks() {
+function stopTasks() {
     for (let task of tasks) {
         clearInterval(task)
     }
+}
+
+function startTasks() {
+    stopTasks()
     main.hidden = false
+    loginForm.hidden = true
+    startTask(
+        () => {
+            if (version !== null) {
+                getVersion((value) => {
+                    if (value != version) {
+                        location.reload()
+                    }
+                })
+            }
+        }, updateInterval
+    )
     startTask(loadVolunteers, volInterval)
     startTask(loadEmailStats, emailInterval)
     startTask(loadSmsStats, smsInterval)
@@ -66,6 +93,7 @@ function requireLogin() {
 }
 
 window.onload = () => {
+    getVersion((value) => version = value)
     loadJSON(baseURL + "authenticated/", (data) => {
         if (data) {
             startTasks()
