@@ -163,27 +163,18 @@ function loadVolunteers() {
                 tag.deleteRow(0)
             }
         }
-        let listenersCellCounter = 0
-        let listenersRow = null
-        let supportsCellCounter = 0
-        let supportsRow = null
         for (let volunteer of data.sort((a, b) => a.id - b.id)) {
             let table = null
-            let row = null
-            let cellCounter = null
             let volunteerType = null
             if (volunteer.is_support_person) {
                 volunteerType  = "support-volunteer"
                 table = supportsTable
-                row = supportsRow
-                cellCounter = supportsCellCounter
             } else {
                 volunteerType  = "listening-volunteer"
                 table = listenersTable
-                row = listenersRow
-                cellCounter = listenersCellCounter
             }
-            if (row === null) {
+            let row = table.rows[table.rows.length - 1]
+            if (row === undefined || row.cells.length == 12) {
                 row = document.createElement("tr")
                 table.appendChild(row)
             }
@@ -198,12 +189,6 @@ function loadVolunteers() {
             cell.appendChild(document.createElement("br"))
             cell.appendChild(volunteerLink(volunteer))
             row.appendChild(cell)
-            if (cellCounter == 12) {
-                row = null
-                cellCounter = 0
-            } else {
-                cellCounter++
-            }
         }
     }, () => status.innerText = "Could not get volunteer list.")
 }
