@@ -154,6 +154,7 @@ function loadVolunteers() {
             cell.id = volunteer.id
             cell.classList.add("volunteer")
             let span = document.createElement("span")
+            span.style.textAlign = "center"
             span.innerText = volunteer.name
             cell.appendChild(span)
             cell.appendChild(document.createElement("br"))
