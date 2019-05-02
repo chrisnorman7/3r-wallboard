@@ -151,13 +151,14 @@ function loadShifts() {
     }, () => status.innerText = "Unable to load shifts.")
 }
 
+const listenersTable = document.getElementById("listeners")
+const supportsTable = document.getElementById("listeners")
+
 function loadVolunteers() {
     status.innerText = "Loading volunteer list..."
     loadJSON(directoryURL, (data) => {
         data = data.volunteers
         status.innerText = `Volunteers last loaded ${new Date()}.`
-        let listenersTable = document.getElementById("listeners")
-        let supportsTable = document.getElementById("listeners")
         for (let tag of [listenersTable, supportsTable]) {
             while (tag.rows.length) {
                 tag.deleteRow(0)
