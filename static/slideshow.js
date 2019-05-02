@@ -23,4 +23,5 @@ function nextScreen() {
 
 this.startSlideshow = function() {
     setInterval(nextScreen, 30000)
+    nextScreen()
 }
