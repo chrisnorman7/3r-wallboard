@@ -1,5 +1,6 @@
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from datetime import datetime, timedelta
+from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup
 from dateparser import parse as parse_date
@@ -9,6 +10,7 @@ from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
 from requests import Session
 
+date_format = '%Y-%m-%d'
 time_format = '%H:%M'
 
 base_url = 'https://www.3r.org.uk/'
@@ -104,8 +106,12 @@ def sms():
 
 @app.route('/shifts/')
 def shifts():
-    shifts = get_url(shift_url, json=True)['shifts']
     now = datetime.now()
+    tomorrow = now + timedelta(days=1)
+    start_string = now.strftime(date_format)
+    end_string = tomorrow.strftime(date_format)
+    e = urlencode(dict(start_date=start_string, end_date=end_string))
+    shifts = get_url(shift_url + '?' + e, json=True)['shifts']
     results = []
     volunteers = {}
     for shift in shifts:
@@ -116,11 +122,17 @@ def shifts():
         start = parse_date(shift['start_datetime'])
         end = start + timedelta(seconds=shift['duration'])
         if (
-            start.year in (
-                now.year, now.year - 1, now.year + 1
-            ) and start.day in (
-                now.day, now.day - 1
-            ) and start.hour <= now.hour and end.hour > now.hour
+            (
+                (start.hour, start.minute) == (end.hour, end.minute) and (
+                    start.day == now.day
+                )
+            ) or (
+                start.year in (
+                    now.year, now.year - 1, now.year + 1
+                ) and start.day in (
+                    now.day, now.day - 1
+                ) and start.hour <= now.hour and end.hour > now.hour
+            )
         ):
             start = start.strftime(time_format)
             end = end.strftime(time_format)

@@ -171,6 +171,7 @@ function loadVolunteers() {
                 volunteerType  = "support-volunteer"
                 table = supportsTable
             } else {
+                console.log(volunteer.is_support_person)
                 volunteerType  = "listening-volunteer"
                 table = listenersTable
             }
