@@ -152,7 +152,7 @@ function loadShifts() {
 }
 
 const listenersTable = document.getElementById("listeners")
-const supportsTable = document.getElementById("listeners")
+const supportsTable = document.getElementById("supports")
 
 function loadVolunteers() {
     status.innerText = "Loading volunteer list..."
@@ -171,7 +171,6 @@ function loadVolunteers() {
                 volunteerType  = "support-volunteer"
                 table = supportsTable
             } else {
-                console.log(volunteer.is_support_person)
                 volunteerType  = "listening-volunteer"
                 table = listenersTable
             }
