@@ -18,6 +18,7 @@ shift_url = base_url + 'shift.json'
 
 http = Session()
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['3R_USERNAME'] = None
 app.config['3R_PASSWORD'] = None
 app.config['3R_AUTHENTICATED'] = False
