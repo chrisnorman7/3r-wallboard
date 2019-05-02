@@ -96,8 +96,12 @@ def textual_stats(url):
     s = BeautifulSoup(get_url(url, auth=False), 'html.parser')
     rows = s.find_all('table')[2].find_all('tr')
     try:
-        unanswered = int(rows[4].find_all('td')[0].text)
-        oldest = rows[5].find_all('td')[0].text.split('(')[1].strip(')')
+        try:
+            unanswered = int(rows[4].find_all('td')[0].text)
+            oldest = rows[5].find_all('td')[0].text.split('(')[1].strip(')')
+        except ValueError:
+            unanswered = 0
+            oldest = '00:00'
     except ValueError:
         unanswered = int(rows[3].find_all('td')[0].text)
         oldest = rows[4].find_all('td')[0].text.split('(')[1].strip(')')
