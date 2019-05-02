@@ -1,5 +1,10 @@
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+
 from bs4 import BeautifulSoup
 from flask import abort, Flask, jsonify, render_template, request
+from gevent import get_hub
+from gevent.pool import Pool
+from gevent.pywsgi import WSGIServer
 from requests import Session
 
 base_url = 'https://www.3r.org.uk/'
@@ -83,5 +88,28 @@ def sms():
     return textual_stats('http://smsstatus.samaritans.org/')
 
 
+parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+
+parser.add_argument(
+    '-i', '--interface', default='0.0.0.0', help='The interface to bind to'
+)
+
+parser.add_argument(
+    '-p', '--port', type=int, default=8398, help='The port to listen on'
+)
+
+parser.add_argument(
+    '-d', '--debug', action='store_true', default=False,
+    help='Enable debugging mode'
+)
+
+
 if __name__ == '__main__':
-    app.run()
+    args = parser.parse_args()
+    app.config['DEBUG'] = args.debug
+    get_hub().NOT_ERROR += (KeyboardInterrupt,)
+    http_server = WSGIServer((args.interface, args.port), app, spawn=Pool())
+    try:
+        http_server.serve_forever()
+    except KeyboardInterrupt:
+        pass
