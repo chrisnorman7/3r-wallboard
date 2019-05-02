@@ -1,4 +1,3 @@
-let shiftVersion = null
 let version = null
 
 const baseURL = `${location.protocol}//${location.host}/`
@@ -120,10 +119,6 @@ function volunteerLink(volunteer, altText) {
 
 function loadShifts() {
     loadJSON(shiftURL, (data) => {
-        if (data.version == shiftVersion) {
-            return
-        }
-        data = data["results"]
         while (shifts.childElementCount) {
             shifts.removeChild(shifts.firstChild)
         }
