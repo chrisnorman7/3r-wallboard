@@ -100,6 +100,7 @@ function loadShifts() {
             h3.innerText = `${shift.name} (${shift.time})`
             shifts.appendChild(h3)
             let t = document.createElement("table")
+            t.align = "center"
             let cols = shift.volunteers.length
             let rows = 0
             let data = []
