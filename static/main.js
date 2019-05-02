@@ -94,26 +94,50 @@ function loadShifts() {
         while (shifts.childElementCount) {
             shifts.removeChild(shifts.firstChild)
         }
-        let h2 = document.createElement("h2")
-        h2.innerText = "Current Shifts"
-        shifts.appendChild(h2)
         for (let shift of data) {
             let h3 = document.createElement("h3")
             h3.innerText = `${shift.name} (${shift.time})`
             shifts.appendChild(h3)
-            for (let volunteer of shift.volunteers) {
-                let h4 = document.createElement("h4")
-                h4.innerText = volunteer.name
-                shifts.appendChild(h4)
-                shifts.appendChild(volunteerLink(volunteer))
-                let l = document.createElement("ul")
+            let t = document.createElement("table")
+            let cols = shift.volunteers.length
+            let rows = 0
+            let data = []
+            for (let i = 0; i < cols; i++) {
+                let volunteer = shift.volunteers[i]
+                let column = [
+                    volunteer.name,
+                    volunteerLink(volunteer)
+                ]
                 for (let detail of volunteer.details) {
-                    let li = document.createElement("li")
-                    li.innerText = `${detail.name}: ${detail.value}`
-                    l.appendChild(li)
+                    column.push(`${detail.name}: ${detail.value}`)
                 }
-                shifts.appendChild(l)
+                data.push(column)
+                rows = Math.max(rows, column.length)
             }
+            for (let row = 0; row < rows; row++) {
+                let r = document.createElement("tr")
+                for (let col = 0; col < cols; col++) {
+                    let tag = null
+                    if (row) {
+                        tag = "td"
+                    } else {
+                        tag = "th"
+                    }
+                    tag = document.createElement(tag)
+                    let value = data[col][row]
+                    if (value === undefined) {
+                        value = document.createTextNode(" ")
+                    } else if (typeof(value) == "string") {
+                        value= document.createTextNode(value)
+                    } else {
+                        // Value is already a tag (hopefully).
+                    }
+                    tag.appendChild(value)
+                    r.appendChild(tag)
+                }
+                t.appendChild(r)
+            }
+            shifts.appendChild(t)
         }
     }, () => status.innerText = "Unable to load shifts.")
 }
