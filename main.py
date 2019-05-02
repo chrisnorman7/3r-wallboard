@@ -1,14 +1,20 @@
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup
+from dateparser import parse as parse_date
 from flask import abort, Flask, jsonify, render_template, request
 from gevent import get_hub
 from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
 from requests import Session
 
+time_format = '%H:%M'
+
 base_url = 'https://www.3r.org.uk/'
 directory_url = base_url + 'directory.json'
+volunteer_url = base_url + 'directory/%d?format=json'
+shift_url = base_url + 'shift.json'
 
 http = Session()
 app = Flask(__name__)
@@ -24,7 +30,7 @@ def get_auth():
     return auth
 
 
-def get_url(url, auth=True):
+def get_url(url, auth=True, json=False):
     """Get a URL, returning abort or the content retrieved from the URL."""
     if auth:
         auth = get_auth()
@@ -33,6 +39,8 @@ def get_url(url, auth=True):
     r = http.get(url, auth=auth)
     app.config['3R_AUTHENTICATED'] = r.ok
     if r.ok:
+        if json:
+            return r.json()
         return r.content
     return abort(r.status_code)
 
@@ -86,6 +94,63 @@ def get_email_stats():
 @app.route('/sms/')
 def sms():
     return textual_stats('http://smsstatus.samaritans.org/')
+
+
+@app.route('/shifts/')
+def shifts():
+    shifts = get_url(shift_url, json=True)['shifts']
+    now = datetime.now()
+    results = {}
+    for shift in shifts:
+        occupants = shift['volunteer_shifts']
+        rota_name = shift['rota']['name']
+        if not occupants or rota_name == 'On holiday':
+            continue
+        start = parse_date(shift['start_datetime'])
+        volunteers = {}
+        if start.year >= now.year and start.day == now.day and \
+           start.hour <= now.hour:
+            end = start + timedelta(seconds=shift['duration'])
+            start = start.strftime(time_format)
+            end = end.strftime(time_format)
+            if start == end:
+                time = 'All day'
+            else:
+                time = f'{start}-{end}'
+            name = rota_name
+            if shift['title']:
+                name = f'{name} - {shift["title"]}'
+            d = dict(name=name, time=time, volunteers=[])
+            for signup in occupants:
+                volunteer = signup['volunteer']
+                id = volunteer['id']
+                if id not in volunteers:
+                    volunteers[id] = get_url(
+                        volunteer_url % id, json=True
+                    )['volunteer']
+                volunteer = volunteers[id]
+                props = volunteer['volunteer_properties']
+                volunteer['details'] = []
+                for prop in props:
+                    code = prop['code']
+                    name = prop['name']
+                    value = prop['value']
+                    if code.startswith('telephone'):
+                        volunteer['details'].append(
+                            dict(name=name, value=value)
+                        )
+                    elif name == 'Friendly Name':
+                        volunteer['name'] = value
+                    else:
+                        continue  # Ignore all other properties.
+                d['volunteers'].append(
+                    dict(
+                        name=volunteer['name'], id=id,
+                        details=volunteer['details']
+                    )
+                )
+            results[rota_name] = d
+    return results
 
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
