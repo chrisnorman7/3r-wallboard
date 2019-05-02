@@ -15,6 +15,9 @@
             <p><input type="submit" value="Login"></p>
         </form>
         <div id="main"
+            {% if single %}
+            <h1>Status</h1>
+            {% endif %}
             <div class="screen" id="screen1">
                 {% if not single %}
                 <h1>Branch Status</h1>
