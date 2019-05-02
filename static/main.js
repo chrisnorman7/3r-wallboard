@@ -103,8 +103,9 @@ function loadShifts() {
             shifts.appendChild(h3)
             for (let volunteer of shift.volunteers) {
                 let h4 = document.createElement("h4")
-                h4.appendChild(volunteerLink(volunteer, volunteer.name))
+                h4.innerText = volunteer.name
                 shifts.appendChild(h4)
+                shifts.appendChild(volunteerLink(volunteer))
                 let l = document.createElement("ul")
                 for (let detail of volunteer.details) {
                     let li = document.createElement("li")
