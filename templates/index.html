@@ -14,38 +14,50 @@
             <p><input type="submit" value="Login"></p>
         </form>
         <div id="main"
-            <h1>Wall Status</h1>
-            <h2>Current Shifts</h2>
-            <div id="shifts"><p>Loading shifts...</p></div>
-            <h2>Listening Volunteers</h2>
-            <table id="listeners" border="1"></table>
-            <h2>Support Volunteers</h2>
-            <table id="supports" border="1"></table>
-            <h2>Email statistics</h2>
-            <table border="1">
-                <tr>
-                    <th>Unanswered Emails</th>
-                    <th>Age of oldest unanswered email</th>
-                </tr>
-                <tr>
-                    <td id="unansweredEmail"></td>
-                    <td id="oldestEmail"></td>
-                </tr>
-            </table>
-            <h2>SMS Statistics</h2>
-            <table border="1">
-                <tr>
-                    <th>Unanswered texts</th>
-                    <th>Age of oldest unanswered text</th>
-                </tr>
-                <tr>
-                    <td id="unansweredSms"></td>
-                    <td id="oldestSms"></td>
-                </tr>
-            </table>
-            <h2>News Items</h2>
-            <div id="news"><p>Loading news...</p></div>
+            <div class="screen" id="screen1">
+                <h1>Branch Status</h1>
+                <h2>Current Shifts</h2>
+                <div id="shifts"><p>Loading shifts...</p></div>
+            </div>
+            <div class="screen" id="screen2">
+                <h1>Volunteer Photos</h1>
+                <h2>Listening Volunteers</h2>
+                <table id="listeners" border="1"></table>
+                <h2>Support Volunteers</h2>
+                <table id="supports" border="1"></table>
+            </div>
+            <div class="screen" id="screen3">
+                <h1>Text Communication Statistics</h1>
+                <h2>Email statistics</h2>
+                <table border="1">
+                    <tr>
+                        <th>Unanswered Emails</th>
+                        <th>Age of oldest unanswered email</th>
+                    </tr>
+                    <tr>
+                        <td id="unansweredEmail"></td>
+                        <td id="oldestEmail"></td>
+                    </tr>
+                </table>
+                <h2>SMS Statistics</h2>
+                <table border="1">
+                    <tr>
+                        <th>Unanswered texts</th>
+                        <th>Age of oldest unanswered text</th>
+                    </tr>
+                    <tr>
+                        <td id="unansweredSms"></td>
+                        <td id="oldestSms"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="screen" id="screen4">
+                <h1>Branch News</h1>
+                <h2>News Items</h2>
+                <div id="news"><p>Loading news...</p></div>
+            </div>
         </div>
-        <script src="/static/main.js?25"></script>
+        <script src="/static/main.js?26"></script>
+        <script src="/static/slideshow.js?0"></script>
     </body>
 </html>

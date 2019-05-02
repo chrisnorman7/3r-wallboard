@@ -1,3 +1,5 @@
+/* globals startSlideshow */
+
 let version = null
 
 const baseURL = `${location.protocol}//${location.host}/`
@@ -110,6 +112,7 @@ function startTasks() {
             }
         })
     }, newsInterval)
+    startSlideshow()
 }
 
 function requireLogin() {
