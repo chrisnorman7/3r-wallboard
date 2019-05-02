@@ -96,6 +96,7 @@ function loadShifts() {
         }
         for (let shift of data) {
             let h3 = document.createElement("h3")
+            h3.style.textAlign = "center"
             h3.innerText = `${shift.name} (${shift.time})`
             shifts.appendChild(h3)
             let t = document.createElement("table")
@@ -124,6 +125,7 @@ function loadShifts() {
                         tag = "th"
                     }
                     tag = document.createElement(tag)
+                    tag.style.textAlign = "center"
                     let value = data[col][row]
                     if (value === undefined) {
                         value = document.createTextNode(" ")
