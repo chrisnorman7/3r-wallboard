@@ -112,7 +112,7 @@ function startTasks() {
             }
         })
     }, newsInterval)
-    if (startSlideshow !== undefined) {
+    if (startSlideshow) {
         startSlideshow()
     }
 }
