@@ -19,7 +19,6 @@ ignored_rota_ids = [
     720,  # Onley Debrief
 ]
 
-shift_expire = timedelta(hours=12)
 time_format = '%H:%M'
 shift_history_threshold = 5
 
@@ -130,13 +129,13 @@ def shifts():
     past_shifts = {}
     future_shifts = {}
     now = datetime.now()
+    now_date = now.date()
     tomorrow = now + timedelta(days=1)
     tomorrow_date = tomorrow.date()
     yesterday = now - timedelta(days=1)
     yesterday_date = yesterday.date()
-    # e = urlencode(dict(start_date=now.date(), end_date=tomorrow_date))
-    # shifts = get_url(shift_url + '?' + e, json=True)['shifts']
-    shifts = get_url(shift_url, json=True)['shifts']
+    e = urlencode(dict(start_date=now_date, end_date=tomorrow_date))
+    shifts = get_url(shift_url + '?' + e, json=True)['shifts']
     results = []
     volunteers = {}
     for shift in shifts:
@@ -146,9 +145,9 @@ def shifts():
             start.year, start.month, start.day, start.hour, start.minute
         )
         end = start + timedelta(seconds=shift['duration'])
-        if rid in ignored_rota_ids or (
-            max(now, start) - min(now, start)
-        ) > shift_expire:
+        shift_start_date = start.date()
+        if rid in ignored_rota_ids or shift_start_date >= tomorrow_date or \
+           shift_start_date < now_date:
             continue
         shift['start'] = start
         shift['end'] = end
