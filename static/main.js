@@ -155,6 +155,7 @@ function loadShifts() {
             let h3 = document.createElement("h3")
             h3.style.textAlign = "center"
             h3.innerText = `${shift.name} (${shift.time})`
+            h3.id = shift.id
             shifts.appendChild(h3)
             let t = document.createElement("table")
             t.align = "center"
