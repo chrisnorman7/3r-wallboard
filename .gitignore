@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 t.py
 *.json
+*.woff2

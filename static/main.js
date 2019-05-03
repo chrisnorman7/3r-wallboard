@@ -1,4 +1,4 @@
-/* globals startSlideshow */
+/* globals startSlideshow, isSupportPerson, updateInterval, volInterval, emailInterval, smsInterval, shiftInterval, newsInterval, volunteerLink */
 
 let version = null
 
@@ -9,13 +9,6 @@ const directoryURL = baseURL + "directory/"
 const shiftURL = baseURL + "shifts"
 const newsURL = baseURL + "news"
 let newsIndex = -1
-
-const updateInterval = 20000
-const volInterval = 3600 * 1000
-const emailInterval = 60000
-const smsInterval = 60000
-const shiftInterval = 60000
-const newsInterval = 1000 * 15
 
 const news = document.getElementById("news")
 const loginForm = document.getElementById("loginForm")
@@ -143,20 +136,6 @@ window.onload = () => {
     }, () => status.innerText = "Unable to ascertain authentication state.")
 }
 
-function volunteerLink(volunteer, altText) {
-    let a = document.createElement("a")
-    a.target = "_new"
-    a.href = `https://www.3r.org.uk/directory/${volunteer.id}`
-    let i = document.createElement("img")
-    i.src = `${baseURL}thumb/${volunteer.id}`
-    if (altText === undefined) {
-        altText = "View in directory"
-    }
-    i.alt = altText
-    a.appendChild(i)
-    return a
-}
-
 function loadShifts() {
     loadJSON(shiftURL, (data) => {
         clearElement(shifts)
@@ -243,7 +222,7 @@ function loadVolunteers() {
             }
             let table = null
             let volunteerType = null
-            if (volunteer.is_support_person) {
+            if (isSupportPerson(volunteer)) {
                 volunteerType  = "support-volunteer"
                 table = supportsTable
             } else {
