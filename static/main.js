@@ -171,7 +171,16 @@ function loadShifts() {
                     volunteerLink(volunteer)
                 ]
                 for (let detail of volunteer.details) {
-                    column.push(`${detail.name}: ${detail.value}`)
+                    let string = `${detail.name}: ${detail.value}`
+                    let value = null
+                    if (detail.name.startsWith("Telephone")) {
+                        value = document.createElement("a")
+                        value.innerText = string
+                        value.href = `tel:${detail.value.replace(" ", "")}`
+                    } else {
+                        value = string
+                    }
+                    column.push(value)
                 }
                 data.push(column)
                 rows = Math.max(rows, column.length)
