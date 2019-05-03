@@ -12,9 +12,9 @@ from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
 from requests import Session
 
-ignored_shift_ids = [
-    50605530,  # On Holiday
-    50607143,  # Ofice PC Booking
+ignored_rota_ids = [
+    403,  # On holiday
+    2381,  # Ofice PC Booking
 ]
 
 date_format = '%Y-%m-%d'
@@ -133,53 +133,54 @@ def shifts():
     results = []
     volunteers = {}
     for shift in shifts:
-        sid = shift['id']
-        if sid in ignored_shift_ids:
-            continue
         rota_name = shift['rota']['name']
+        rid = shift['rota']['id']
         start = parse_date(shift['start_datetime'])
+        start = datetime(
+            start.year, start.month, start.day, start.hour, start.minute
+        )
         end = start + timedelta(seconds=shift['duration'])
-        ts = now.timestamp()
-        if start.timestamp() < ts and end.timestamp() > ts:
-            start = start.strftime(time_format)
-            end = end.strftime(time_format)
-            if start == end:
-                time = 'All day'
-            else:
-                time = f'{start}-{end}'
-            name = rota_name
-            if shift['title']:
-                name = f'{name} - {shift["title"]}'
-            d = dict(name=name, time=time, volunteers=[], id=sid)
-            for signup in shift['volunteer_shifts']:
-                volunteer = signup['volunteer']
-                id = volunteer['id']
-                if id not in volunteers:
-                    volunteers[id] = get_url(
-                        volunteer_url % id, json=True
-                    )['volunteer']
-                volunteer = volunteers[id]
-                props = volunteer['volunteer_properties']
-                volunteer['details'] = []
-                for prop in props:
-                    code = prop['code']
-                    name = prop['name']
-                    value = prop['value']
-                    if code.startswith('telephone'):
-                        volunteer['details'].append(
-                            dict(name=name, value=value)
-                        )
-                    elif name == 'Friendly Name':
-                        volunteer['name'] = value
-                    else:
-                        continue  # Ignore all other properties.
-                d['volunteers'].append(
-                    dict(
-                        name=volunteer['name'], id=id,
-                        details=volunteer['details']
+        if rid in ignored_rota_ids or start > now:
+            continue
+        start = start.strftime(time_format)
+        end = end.strftime(time_format)
+        if start == end:
+            time = 'All day'
+        else:
+            time = f'{start}-{end}'
+        name = rota_name
+        if shift['title']:
+            name = f'{name} - {shift["title"]}'
+        d = dict(name=name, time=time, volunteers=[], id=rid)
+        for signup in shift['volunteer_shifts']:
+            volunteer = signup['volunteer']
+            id = volunteer['id']
+            if id not in volunteers:
+                volunteers[id] = get_url(
+                    volunteer_url % id, json=True
+                )['volunteer']
+            volunteer = volunteers[id]
+            props = volunteer['volunteer_properties']
+            volunteer['details'] = []
+            for prop in props:
+                code = prop['code']
+                name = prop['name']
+                value = prop['value']
+                if code.startswith('telephone'):
+                    volunteer['details'].append(
+                        dict(name=name, value=value)
                     )
+                elif name == 'Friendly Name':
+                    volunteer['name'] = value
+                else:
+                    continue  # Ignore all other properties.
+            d['volunteers'].append(
+                dict(
+                    name=volunteer['name'], id=id,
+                    details=volunteer['details']
                 )
-            results.append(d)
+            )
+        results.append(d)
     return jsonify(results)
 
 
