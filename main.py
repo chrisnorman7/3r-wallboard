@@ -15,9 +15,11 @@ from requests import Session
 ignored_rota_ids = [
     403,  # On holiday
     2381,  # Ofice PC Booking
+    1496,  # Rye Hill Debrief
+    720,  # Onley Debrief
 ]
 
-date_format = '%Y-%m-%d'
+shift_expire = timedelta(hours=12)
 time_format = '%H:%M'
 shift_history_threshold = 5
 
@@ -124,33 +126,68 @@ def sms():
 
 @app.route('/shifts/')
 def shifts():
+    current_shifts = {}
+    past_shifts = {}
+    future_shifts = {}
     now = datetime.now()
     tomorrow = now + timedelta(days=1)
-    start_string = now.strftime(date_format)
-    end_string = tomorrow.strftime(date_format)
-    e = urlencode(dict(start_date=start_string, end_date=end_string))
-    shifts = get_url(shift_url + '?' + e, json=True)['shifts']
+    tomorrow_date = tomorrow.date()
+    yesterday = now - timedelta(days=1)
+    yesterday_date = yesterday.date()
+    # e = urlencode(dict(start_date=now.date(), end_date=tomorrow_date))
+    # shifts = get_url(shift_url + '?' + e, json=True)['shifts']
+    shifts = get_url(shift_url, json=True)['shifts']
     results = []
     volunteers = {}
     for shift in shifts:
-        rota_name = shift['rota']['name']
         rid = shift['rota']['id']
         start = parse_date(shift['start_datetime'])
         start = datetime(
             start.year, start.month, start.day, start.hour, start.minute
         )
         end = start + timedelta(seconds=shift['duration'])
-        if rid in ignored_rota_ids or start > now:
+        if rid in ignored_rota_ids or (
+            max(now, start) - min(now, start)
+        ) > shift_expire:
             continue
-        start = start.strftime(time_format)
-        end = end.strftime(time_format)
+        shift['start'] = start
+        shift['end'] = end
+        if now < end:  # Shift ends in the future.
+            if now < start:  # Shift also starts in the future.
+                future_shifts.setdefault(rid, []).append(shift)
+            else:  # Shift is currently running.
+                current_shifts.setdefault(rid, []).append(shift)
+        else:
+            past_shifts.setdefault(rid, []).append(shift)
+    shifts.clear()
+    for passed in past_shifts.values():
+        shifts.append(passed[-1])
+    for current in current_shifts.values():
+        shifts.extend(current)
+    for future in future_shifts.values():
+        shifts.append(future[0])
+    for shift in shifts:
+        rid = shift['rota']['id']
+        start = shift['start']
+        end = shift['end']
+        rota_name = shift['rota']['name']
+        start_string = start.strftime(time_format)
+        end_string = end.strftime(time_format)
         if start == end:
             time = 'All day'
         else:
-            time = f'{start}-{end}'
+            time = f'{start_string}-{end_string}'
         name = rota_name
         if shift['title']:
             name = f'{name} - {shift["title"]}'
+        start_date = start.date()
+        if start_date == tomorrow_date:
+            prefix = "Tomorrow's "
+        elif start_date == yesterday_date:
+            prefix = "Yesterday's "
+        else:
+            prefix = ''
+        name = f'{prefix} {name}'
         d = dict(name=name, time=time, volunteers=[], id=rid)
         for signup in shift['volunteer_shifts']:
             volunteer = signup['volunteer']
