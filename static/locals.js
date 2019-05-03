@@ -5,9 +5,8 @@
 // Modify this file to configure your organisation's notice board.
 
 // A function to determine whether or not a particular volunteer is a member of support staff or not.
-
 this.isSupportPerson = function(v) {
-    return v.name.match(/[^-]+-S[0-9]+/)
+    return v.name.match(/[^- ]+[- ]S[0-9]+/)
 }
 
 // Intervals for loading stuff. All times are given in milliseconds.
