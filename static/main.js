@@ -101,6 +101,7 @@ function startTasks() {
             clearElement(news)
             for (let item of data) {
                 let h3 = document.createElement("h3")
+                h3.tabIndex = "0"
                 h3.innerText = item.title
                 news.appendChild(h3)
                 let h4 = document.createElement("h4")
@@ -153,6 +154,7 @@ function loadShifts() {
         clearElement(shifts)
         for (let shift of data) {
             let h3 = document.createElement("h3")
+            h3.tabIndex = "0"
             h3.style.textAlign = "center"
             h3.innerText = `${shift.name} (${shift.time})`
             h3.id = shift.id

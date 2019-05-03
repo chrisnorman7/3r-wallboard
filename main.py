@@ -32,7 +32,6 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['3R_USERNAME'] = None
 app.config['3R_PASSWORD'] = None
 app.config['3R_AUTHENTICATED'] = False
-app.config['VERSION'] = os.popen('git describe --tags --always').read().strip()
 app.config['SHIFT_VERSION'] = 0
 
 
@@ -186,7 +185,7 @@ def shifts():
 
 @app.route('/version/')
 def version():
-    return app.config['VERSION']
+    return os.popen('git describe --tags --always').read().strip()
 
 
 @app.route('/news/')
