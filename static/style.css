@@ -1,25 +1,25 @@
 @font-face {
-    font-family: "varah-bold";
-    src: url("font/Varah-Bold.woff2");
+    font-family: "custom-font-bold";
+    src: url("/style/font/bold.woff2");
 }
 
 @font-face {
-    font-family: "varah-bold-italic";
-    src: url("font/Varah-BoldItalic.woff2");
+    font-family: "custom-font-bold-italic";
+    src: url("/static/font/bolditalic.woff2");
 }
 
 @font-face {
-    font-family: "varah-italic";
-    src: url("font/Varah-Italic.woff2");
+    font-family: "custom-font-italic";
+    src: url("/static/font/italic.woff2");
 }
 
 @font-face {
-    font-family: "varah";
-    src: url("font/Varah-Regular.woff2");
+    font-family: "custom-font";
+    src: url("/static/font/regular.woff2");
 }
 
 body {
-    font-family: "varah", "varah-bold-italic", "varah-bold", "varah-bold-italic", "Times New Roman"
+    font-family: "custom-font", "custom-font-bold", "custom-font-bold-italic", "Times New Roman"
 }
 
 table, th, td {
