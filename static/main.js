@@ -8,13 +8,14 @@ const loginURL = baseURL + "login/"
 const directoryURL = baseURL + "directory/"
 const shiftURL = baseURL + "shifts"
 const newsURL = baseURL + "news"
+let newsIndex = -1
 
 const updateInterval = 20000
 const volInterval = 3600 * 1000
 const emailInterval = 60000
 const smsInterval = 60000
 const shiftInterval = 60000
-const newsInterval = 1000 * 3600
+const newsInterval = 1000 * 15
 
 const news = document.getElementById("news")
 const loginForm = document.getElementById("loginForm")
@@ -99,18 +100,25 @@ function startTasks() {
     startTask(() => {
         loadJSON(newsURL, (data) => {
             clearElement(news)
-            for (let item of data) {
-                let h3 = document.createElement("h3")
-                h3.tabIndex = "0"
-                h3.innerText = item.title
-                news.appendChild(h3)
-                let h4 = document.createElement("h4")
-                h4.innerText = `${item.creator.name} (${new Date(item.created_at)})`
-                news.appendChild(h4)
-                let div = document.createElement("div")
-                div.innerHTML = item.body
-                news.appendChild(div)
+            newsIndex += 1
+            if (newsIndex >= data.length) {
+                newsIndex = 0
             }
+            let newsItem = data[newsIndex]
+            if (newsItem.sticky) {
+                news.style.backgroundColor = "yellow"
+            } else {
+                news.style.backgroundColor = "white"
+            }
+            let h3 = document.createElement("h3")
+            h3.innerText = newsItem.title
+            news.appendChild(h3)
+            let h4 = document.createElement("h4")
+            h4.innerText = `${newsItem.creator.name} (${new Date(newsItem.created_at)})`
+            news.appendChild(h4)
+            let div = document.createElement("div")
+            div.innerHTML = newsItem.body
+            news.appendChild(div)
         })
     }, newsInterval)
     if (startSlideshow) {
