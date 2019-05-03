@@ -228,6 +228,11 @@ function loadVolunteers() {
             }
         }
         for (let volunteer of data.sort((a, b) => a.id - b.id)) {
+            if ([
+                "Sam 123", "Rotaonly"
+            ].includes(volunteer.name)) {
+                continue
+            }
             let table = null
             let volunteerType = null
             if (volunteer.is_support_person) {
