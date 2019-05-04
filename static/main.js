@@ -15,6 +15,7 @@ let newsIndex = -1
 // Various elements on the page:
 const main = document.getElementById("main")
 const loading = document.getElementById("loading")
+const errorDiv = document.getElementById("error")
 const newsTitle = document.getElementById("newsTitle")
 const newsCreator = document.getElementById("newsCreator")
 const newsBody = document.getElementById("newsBody")
@@ -41,6 +42,7 @@ function loadJSON(url, func, onerror) {
     req.open("GET", url)
     req.onload = () => {
         loading.hidden = true
+        errorDiv.hidden = true
         main.hidden = false
         let j = null
         try {
@@ -54,8 +56,7 @@ function loadJSON(url, func, onerror) {
     }
     req.onerror = () => {
         main.hidden = true
-        loading.hidden = false
-        loading.innerText = "Connection lost!"
+        errorDiv.hidden = false
         onerror()
     }
     req.send()
@@ -129,6 +130,7 @@ function startTasks() {
 window.onload = () => {
     main.hidden = true
     loading.hidden = false
+    errorDiv.hidden = true
     shiftsTable.hidden = true // Hide the shifts table until it's loaded.
     getVersion((value) => {
         loading.hidden = false // Hide the main page.
