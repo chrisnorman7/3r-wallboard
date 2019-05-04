@@ -224,8 +224,10 @@ function loadVolunteers() {
                 || row.cells.length == volunteersCellCount // The table is as wide as settings allow.
             ) {
                 row = table.insertRow(-1) // Create a new (or the first) row.
+                row.role = "row" // Make it play nice with screenreaders.
             }
             let cell = row.insertCell(-1) // Create a cell.
+            cell.role = "gridcell" // Make it play nice with screen readers.
             cell.id = volunteer.id // Probably won't use these, but we've got access to them, so might as well include them.
             cell.style.textAlign = "center" // Ensure our text ends up in the middle.
             cell.classList.add("volunteer") // Make all volunteers equal in the eyes of the class.
@@ -242,6 +244,16 @@ function loadVolunteers() {
                 div.innerText += presentVolunteerNameSuffix
             }
             cell.appendChild(div) // Finally add the div to the cell below the image.
+        }
+        for (let tag of [listenersTable, supportsTable]) { // Finish off the rows with empty cells.
+            let row = tag.rows[tag.rows.length - 1]
+            if (row === undefined) { // No rows.
+                continue
+            }
+            while (row.cells.length < volunteersCellCount) { // Make more cells.
+                let cell = row.insertCell(-1)
+                cell.role = "gridcell" // Otherwise it's invisible to screen readers.
+            }
         }
     }, () => status.innerText = "Could not get volunteer list.")
 }
