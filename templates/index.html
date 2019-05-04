@@ -7,7 +7,7 @@
         <link rel="stylesheet" type="text/css" href="/static/style.css?3">
     </head>
     <body>
-        <p id="status" aria-live="polite" aria-atomic="false" aria-relevant="additions text">Loading...</p>
+        <p id="status" aria-live="polite">Loading...</p>
         <h1>Status</h1>
         <h2>Current Shifts</h2>
         <div id="shifts"><p>Loading shifts...</p></div>
@@ -37,8 +37,10 @@
             </tr>
         </table>
         <h2>News</h2>
-        <div id="news"><p>Loading news...</p></div>
+        <h3 id="newsTitle" aria-live="polite">Loading News...</h3>
+        <h4 id="newsCreator"></h4>
+        <div id="newsBody"></div>
         <script src="/static/locals.js?2"></script>
-        <script src="/static/main.js?35"></script>
+        <script src="/static/main.js?36"></script>
     </body>
 </html>

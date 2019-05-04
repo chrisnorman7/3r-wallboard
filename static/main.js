@@ -9,7 +9,9 @@ const shiftURL = baseURL + "shifts"
 const newsURL = baseURL + "news"
 let newsIndex = -1
 
-const news = document.getElementById("news")
+const newsTitle = document.getElementById("newsTitle")
+const newsCreator = document.getElementById("newsCreator")
+const newsBody = document.getElementById("newsBody")
 
 const status = document.getElementById("status")
 const shifts = document.getElementById("shifts")
@@ -82,26 +84,19 @@ function startTasks() {
     startTask(loadShifts, shiftInterval)
     startTask(() => {
         loadJSON(newsURL, (data) => {
-            clearElement(news)
             newsIndex += 1
             if (newsIndex >= data.length) {
                 newsIndex = 0
             }
             let newsItem = data[newsIndex]
             if (newsItem.sticky) {
-                news.style.backgroundColor = "yellow"
+                newsBody.style.backgroundColor = "yellow"
             } else {
-                news.style.backgroundColor = "white"
+                newsBody.style.backgroundColor = "white"
             }
-            let h3 = document.createElement("h3")
-            h3.innerText = newsItem.title
-            news.appendChild(h3)
-            let h4 = document.createElement("h4")
-            h4.innerText = `${newsItem.creator.name} (${new Date(newsItem.created_at)})`
-            news.appendChild(h4)
-            let div = document.createElement("div")
-            div.innerHTML = newsItem.body
-            news.appendChild(div)
+            newsTitle.innerText = newsItem.title
+            newsCreator.innerText = `${newsItem.creator.name} (${new Date(newsItem.created_at)})`
+            newsBody.innerHTML = newsItem.body
         })
     }, newsInterval)
 }
