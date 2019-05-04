@@ -9,7 +9,7 @@
     <body>
         <p id="status" aria-live="polite">Loading...</p>
         <h1>Status</h1>
-        <h2>Branch Details</h2>
+        <h2>Branch Shifts</h2>
         <div>
             <p id="shiftsStatus">Loading shifts...</p>
             <table id="shiftsTable">
@@ -19,12 +19,7 @@
                     <th class="shiftCell">Next Shift</th>
                 </tr>
                 <tr>
-                    <td class="shiftCell">
-                        <h2>News</h2>
-                        <h3 id="newsTitle" aria-live="polite">Loading News...</h3>
-                        <h4 id="newsCreator"></h4>
-                        <div id="newsBody"></div>
-                    </td>
+                    <td class="shiftCell"></td>
                     <td class="shiftCell" id="specialShifts"></td>
                     <td class="shiftCell"></td>
                 </tr>
@@ -60,7 +55,11 @@
                 <td id="oldestSms"></td>
             </tr>
         </table>
+        <h2>News</h2>
+        <h3 id="newsTitle" aria-live="polite">Loading News...</h3>
+        <h4 id="newsCreator"></h4>
+        <div id="newsBody"></div>
         <script src="/static/locals.js?3"></script>
-        <script src="/static/main.js?41"></script>
+        <script src="/static/main.js?42"></script>
     </body>
 </html>

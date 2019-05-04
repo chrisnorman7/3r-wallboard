@@ -210,7 +210,7 @@ function loadVolunteers() {
             span.style.textAlign = "center"
             if (volunteer.on_leave) {
                 span.style.color = "red"
-                span.innerText += " (On Leave)"
+                span.innerText += " (l)"
             }
             cell.appendChild(span)
             row.appendChild(cell)
