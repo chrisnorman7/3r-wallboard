@@ -182,7 +182,7 @@ function loadVolunteers() {
                 tag.deleteRow(0)
             }
         }
-        for (let volunteer of data.sort((a, b) => a.id - b.id)) {
+        for (let volunteer of data) {
             if (ignoredVolunteers.includes(volunteer.name)) {
                 continue
             }
