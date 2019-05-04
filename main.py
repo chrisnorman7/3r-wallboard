@@ -112,10 +112,12 @@ def shifts():
     tomorrow_date = tomorrow.date()
     yesterday = now - timedelta(days=1)
     yesterday_date = yesterday.date()
-    e = urlencode(dict(start_date=now_date, end_date=tomorrow_date))
+    e = urlencode(dict(start_date=yesterday_date, end_date=tomorrow_date))
     shifts = get_url(shift_url + '?' + e, json=True)['shifts']
     results = []
     volunteers = {}
+    past_shift_latest = yesterday
+    future_shift_earliest = tomorrow
     for shift in shifts:
         rid = shift['rota']['id']
         start = parse_date(shift['start_datetime'])
@@ -123,26 +125,31 @@ def shifts():
             start.year, start.month, start.day, start.hour, start.minute
         )
         end = start + timedelta(seconds=shift['duration'])
-        shift_start_date = start.date()
-        if rid in ignored_rota_ids or shift_start_date >= tomorrow_date or \
-           shift_start_date < now_date:
+        shift_end_date = end.date()
+        if rid in ignored_rota_ids or shift_end_date < now_date:
             continue
         shift['start'] = start
         shift['end'] = end
         if now < end:  # Shift ends in the future.
             if now < start:  # Shift also starts in the future.
+                future_shift_earliest = min(future_shift_earliest, start)
                 future_shifts.setdefault(rid, []).append(shift)
             else:  # Shift is currently running.
                 current_shifts.setdefault(rid, []).append(shift)
         else:
+            past_shift_latest = max(past_shift_latest, start)
             past_shifts.setdefault(rid, []).append(shift)
     shifts.clear()
     for passed in past_shifts.values():
-        shifts.append(passed[-1])
+        shift = passed[-1]
+        if shift['start'] == past_shift_latest:
+            shifts.append(shift)
     for current in current_shifts.values():
         shifts.extend(current)
     for future in future_shifts.values():
-        shifts.append(future[0])
+        shift = future[0]
+        if shift['start'] == future_shift_earliest:
+            shifts.append(shift)
     for shift in shifts:
         rid = shift['rota']['id']
         start = shift['start']
