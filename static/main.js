@@ -55,6 +55,7 @@ function loadJSON(url, func, onerror) {
     req.onerror = () => {
         main.hidden = true
         loading.hidden = false
+        loading.innerText = "Connection lost!"
         onerror()
     }
     req.send()
