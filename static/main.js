@@ -40,6 +40,8 @@ function loadJSON(url, func, onerror) {
     let req = new XMLHttpRequest()
     req.open("GET", url)
     req.onload = () => {
+        loading.hidden = true
+        main.hidden = false
         let j = null
         try {
             j = JSON.parse(req.response)
@@ -50,7 +52,11 @@ function loadJSON(url, func, onerror) {
         }
         func(j) // Send the json.
     }
-    req.onerror = onerror
+    req.onerror = () => {
+        main.hidden = true
+        loading.hidden = false
+        onerror()
+    }
     req.send()
 }
 
