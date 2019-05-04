@@ -1,35 +1,42 @@
-/* globals isSupportPerson, updateInterval, volInterval, emailInterval, smsInterval, shiftInterval, newsInterval, volunteerLink, ignoredVolunteers */
+/* globals isSupportPerson, updateInterval, volInterval, emailInterval, smsInterval, shiftInterval, newsInterval, volunteerLink, ignoredVolunteers, stickyNewsItemColour, nonstickyNewsItemColour, volunteersCellCount, presentVolunteerNameColour, onLeaveVolunteerNameColour, presentVolunteerNameSuffix, onLeaveVolunteerNameSuffix */
 
-let version = null
+let version = null // Used for updates.
 
+// Lots of URLS:
 const baseURL = `${location.protocol}//${location.host}/`
 const versionURL = baseURL + "version"
 const directoryURL = baseURL + "directory/"
 const shiftURL = baseURL + "shifts"
 const newsURL = baseURL + "news"
+
+// Store where abouts we are in the list of news items.
 let newsIndex = -1
 
+// Various elements on the page:
 const newsTitle = document.getElementById("newsTitle")
 const newsCreator = document.getElementById("newsCreator")
 const newsBody = document.getElementById("newsBody")
-
 const status = document.getElementById("status")
-
 const shiftsTable = document.getElementById("shiftsTable")
 const shiftsStatus = document.getElementById("shiftsStatus")
 const specialShifts = document.getElementById("specialShifts")
 const previousShift = document.getElementById("previousShift")
 const currentShift = document.getElementById("currentShift")
 const nextShift = document.getElementById("nextShift")
+const listenersTable = document.getElementById("listeners")
+const supportsTable = document.getElementById("supports")
 
 function clearElement(e) {
+    // A function to clear all children from an element.
     while (e.childElementCount) {
         e.removeChild(e.firstChild)
     }
 }
 
 function loadJSON(url, func, onerror) {
-    if (onerror !== undefined) {
+    // Load JSON from url, and pass it through func.
+    // If anything goes wrong, call onerror.
+    if (onerror === undefined) { // Let's add a default function.
         onerror = () => status.innerText = "Unable to decode JSON."
     }
     let req = new XMLHttpRequest()
@@ -41,90 +48,93 @@ function loadJSON(url, func, onerror) {
         }
         catch (err) {
             onerror()
+            return // Don't call fuck with null.
         }
-        if (j !== null) {
-            func(j)
-        }
+        func(j) // Send the json.
     }
     req.onerror = onerror
     req.send()
 }
 
 function getVersion(func) {
+    // A function to get a unique number that (when changed), tells this page to reload.
     let req = new XMLHttpRequest()
     req.onload = () => func(req.response)
     req.open("GET", versionURL)
     req.send()
 }
 
-const tasks = []
+const tasks = [] // A list of all tasks that are running.
 
 function startTask(func, interval) {
-    tasks.push(setInterval(func, interval))
-    func()
+    // A function to start a task at the specified interval, and call the function for the first time.
+    tasks.push(setInterval(func, interval)) // Save the ID.
+    func() // And call it for the first time.
 }
 
 function stopTasks() {
-    for (let task of tasks) {
-        clearInterval(task)
+    // Stop all running tasks.
+    while (tasks.length) {
+        // Pop a task and cancel it.
+        clearInterval(tasks.pop())
     }
 }
 
 function startTasks() {
+    // Put any tasks that should run here.
     stopTasks()
-    startTask(
-        () => {
-            if (version !== null) {
-                getVersion((value) => {
-                    if (value != version) {
-                        location.reload()
-                    }
-                })
-            }
-        }, updateInterval
-    )
+    startTask(() => { // Check version and reload the page if necessary.
+        if (version !== null) { // Initially set by window.onload.
+            getVersion((value) => {
+                if (value != version) { // The server has been updated.
+                    location.reload() // Get the new version.
+                }
+            })
+        }
+    }, updateInterval)
     startTask(loadVolunteers, volInterval)
     startTask(loadEmailStats, emailInterval)
     startTask(loadSmsStats, smsInterval)
     startTask(loadShifts, shiftInterval)
-    startTask(() => {
+    startTask(() => { // Load the news.
         loadJSON(newsURL, (data) => {
-            newsIndex += 1
-            if (newsIndex >= data.length) {
-                newsIndex = 0
+            newsIndex += 1 // Increment so we show a different article every time.
+            // Don't use == (which would make perfect sense), in case someone removes a news article.
+            if (newsIndex >= data.length) { // We've popped off the end.
+                newsIndex = 0 // So go back to the start.
             }
-            let newsItem = data[newsIndex]
-            if (newsItem.sticky) {
-                newsBody.style.backgroundColor = "yellow"
+            let newsItem = data[newsIndex] // Find us an article.
+            if (newsItem.sticky) { // Make it yellow!
+                newsBody.style.backgroundColor = stickyNewsItemColour
             } else {
-                newsBody.style.backgroundColor = "white"
+                newsBody.style.backgroundColor = nonstickyNewsItemColour
             }
             newsTitle.innerText = newsItem.title
             newsCreator.innerText = `${newsItem.creator.name} (${new Date(newsItem.created_at)})`
-            newsBody.innerHTML = newsItem.body
+            newsBody.innerHTML = newsItem.body // News items come out in HTML.
         })
     }, newsInterval)
 }
 
 window.onload = () => {
-    shiftsTable.hidden = true
-    getVersion((value) => version = value)
-    startTasks()
+    shiftsTable.hidden = true // Hide the shifts table until it's loaded.
+    getVersion((value) => version = value) // Set initial version.
+    startTasks() // Start all the tasks.
 }
 
 function loadShifts() {
-    loadJSON(shiftURL, (data) => {
-        shiftsStatus.hidden = true
-        shiftsTable.hidden = false
-        for (let tag of [specialShifts, previousShift, currentShift, nextShift]) {
+    loadJSON(shiftURL, (data) => { // Get a list of shift objects.
+        shiftsTable.hidden = false // Show the goods.
+        shiftsStatus.hidden = true // Hide that pesky message.
+        for (let tag of [specialShifts, previousShift, currentShift, nextShift]) { // Clear the tables.
             clearElement(tag)
         }
-        let ss = []
-        let ps = []
-        let cs = []
-        let ns = []
-        for (let shift of data) {
-            let shiftType = shift.type
+        let ss = [] // Special shifts.
+        let ps = [] // Previous shifts.
+        let cs = [] // Current shifts.
+        let ns = [] // Next shifts.
+        for (let shift of data) { // Finally deal with the list.
+            let shiftType = shift.type // This will tell us which list to put it in.
             if (shiftType == "past") {
                 ps.push(shift)
             } else if (shiftType == "special") {
@@ -134,33 +144,32 @@ function loadShifts() {
             } else if (shiftType == "future") {
                 ns.push(shift)
             } else {
-                throw Error(`Invalid shift type: ${shiftType}.`)
+                throw Error(`Invalid shift type: ${shiftType}.`) // Probably someone made a mistake when editing main.py.
             }
         }
-        for (let [shifts, cell] of         [
+        for (let [shifts, cell] of         [ // Combine the list of shift objects with a tag to add them to.
             [ss, specialShifts],
             [ps, previousShift],
             [cs, currentShift],
             [ns, nextShift]
         ]) {
-            for (let shift of shifts.sort((a, b) => {
-                if (a.name == b.name) {
+            for (let shift of shifts.sort((a, b) => { // Sort the shifts by name.
+                if (a.name == b.name) { // They're the same.
                     return 0
-                } else if (a.name < b.name) {
+                } else if (a.name < b.name) { // Shift a should appear before shift b.
                     return -1
-                } else {
+                } else { // Shift b should appear before shift a.
                     return 1
                 }
             })) {
-                let tags = []
                 let h3 = document.createElement("h3")
                 h3.innerText = `${shift.name} (${shift.time})`
-                tags.push(h3)
+                cell.appendChild(h3)
                 for (let volunteer of shift.volunteers) {
                     let h4 = document.createElement("h4")
                     h4.innerText = volunteer.name
-                    tags.push(h4)
-                    tags.push(volunteerLink(volunteer))
+                    cell.appendChild(h4)
+                    cell.appendChild(volunteerLink(volunteer))
                     let p = document.createElement("p")
                     for (let detail of volunteer.details) {
                         let string = `${detail.name}: ${detail.value}`
@@ -175,38 +184,33 @@ function loadShifts() {
                         p.appendChild(value)
                         p.appendChild(document.createElement("br"))
                     }
-                    tags.push(p)
-                }
-                for (let tag of tags) {
-                    cell.appendChild(tag)
+                    cell.appendChild(p)
                 }
             }
         }
     }, () => {
         status.innerText = "Unable to load shifts."
-        shiftsStatus.hidden = false
-        shiftsTable.hidden = true
+        shiftsStatus.hidden = false // Let everyone know we're loading.
+        shiftsTable.hidden = true // Hide it before we load again.
     })
 }
 
-const listenersTable = document.getElementById("listeners")
-const supportsTable = document.getElementById("supports")
-
 function loadVolunteers() {
+    // Load all pictures and volunteer names to the listeners and supports tables.
     status.innerText = "Loading volunteer list..."
-    loadJSON(directoryURL, (data) => {
+    loadJSON(directoryURL, (data) => { // Get a list of volunteer objects.
         status.innerText = `Volunteers last loaded ${new Date()}.`
-        for (let tag of [listenersTable, supportsTable]) {
+        for (let tag of [listenersTable, supportsTable]) { // Clear them.
             while (tag.rows.length) {
                 tag.deleteRow(0)
             }
         }
         for (let volunteer of data) {
-            if (ignoredVolunteers.includes(volunteer.name)) {
+            if (ignoredVolunteers.includes(volunteer.name)) { // Skip over them.
                 continue
             }
-            let table = null
-            let volunteerType = null
+            let table = null // They could go into either table at this point.
+            let volunteerType = null // Eventually used as a class name.
             if (isSupportPerson(volunteer)) {
                 volunteerType  = "support-volunteer"
                 table = supportsTable
@@ -214,57 +218,67 @@ function loadVolunteers() {
                 volunteerType  = "listening-volunteer"
                 table = listenersTable
             }
-            let row = table.rows[table.rows.length - 1]
-            if (row === undefined || row.cells.length == 12) {
-                row = document.createElement("tr")
-                table.appendChild(row)
+            let row = table.rows[table.rows.length - 1] // Get the last row in the table Might not exist yet.
+            if (
+                row === undefined // No rows have been created yet.
+                || row.cells.length == volunteersCellCount // The table is as wide as settings allow.
+            ) {
+                row = table.insertRow(-1) // Create a new (or the first) row.
             }
-            let cell = document.createElement("td")
-            cell.id = volunteer.id
-            cell.classList.add("volunteer")
-            cell.classList.add(volunteerType)
-            cell.appendChild(volunteerLink(volunteer))
-            cell.appendChild(document.createElement("br"))
-            let span = document.createElement("span")
-            span.innerText = volunteer.name
-            span.style.textAlign = "center"
+            let cell = row.insertCell(-1) // Create a cell.
+            cell.id = volunteer.id // Probably won't use these, but we've got access to them, so might as well include them.
+            cell.style.textAlign = "center" // Ensure our text ends up in the middle.
+            cell.classList.add("volunteer") // Make all volunteers equal in the eyes of the class.
+            cell.classList.add(volunteerType) // Differentiate between listeners and supports with the class we made earlier.
+            cell.appendChild(volunteerLink(volunteer)) // Add a link to the directory.
+            cell.appendChild(document.createElement("br")) // And a blank line.
+            let div = document.createElement("div") // Use a div so we can modify the style.
+            div.innerText = volunteer.name
             if (volunteer.on_leave) {
-                span.style.color = "red"
-                span.innerText += " (L)"
+                div.style.color = onLeaveVolunteerNameColour
+                div.innerText += onLeaveVolunteerNameSuffix
+            } else {
+                div.style.color = presentVolunteerNameColour
+                div.innerText += presentVolunteerNameSuffix
             }
-            cell.appendChild(span)
-            row.appendChild(cell)
+            cell.appendChild(div) // Finally add the div to the cell below the image.
         }
     }, () => status.innerText = "Could not get volunteer list.")
 }
 
 function loadTextTable(data, unanswered, oldest) {
+    // Used to load both SMS and email statistics. All arguments should be dom elements.
     unanswered.innerText = data.unanswered
     let o = data.oldest
-    let n = Number(o.split(":")[0])
     oldest.innerText = o
-    let fs, bg = null
-    if (n < 2) {
+    // Use a traffic light system to give a visual indicator of how urgent it is to start working on messages.
+    // Less than 2 hours, use green as the colour and show the text at a medium size.
+    // All the way up to 4 hours or more, the text turns black and gets massive.
+    let hours = Number(o.split(":")[0]) // The number of hours the oldest message has been hanging around.
+    let fs = null // Font size.
+    let bg = null // Background colour.
+    if (hours < 2) {
         fs = "medium"
         bg = "green"
-    } else if (n < 3) {
+    } else if (hours < 3) {
         fs = "large"
         bg = "orange"
-    } else if (n < 4) {
+    } else if (hours < 4) {
         fs = "x-large"
         bg = "red"
     } else {
         fs = "xx-large"
         bg = "black"
     }
-    for (let style of [unanswered.style, oldest.style]) {
-        style.color = "white"
-        style.fontSize = fs
-        style.background = bg
+    for (let style of [unanswered.style, oldest.style]) { // Colour everything.
+        style.color = "white" // Set the text colour first.
+        style.fontSize = fs // Set font size.
+        style.background = bg // Set background colour.
     }
 }
 
 function loadEmailStats() {
+    // Load email statistics and pass them through loadTextTable.
     loadJSON(
         baseURL + "email/",
         (data) => loadTextTable(data, document.getElementById("unansweredEmail"), document.getElementById("oldestEmail")),
@@ -273,6 +287,7 @@ function loadEmailStats() {
 }
 
 function loadSmsStats() {
+    // Load SMS statistics and pass them through loadTextTable.
     loadJSON(
         baseURL + "sms/",
         (data) => loadTextTable(data, document.getElementById("unansweredSms"), document.getElementById("oldestSms")),

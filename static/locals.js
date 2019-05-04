@@ -45,3 +45,18 @@ this.volunteerLink = function(volunteer, altText) {
 }
 
 this.ignoredVolunteers = ["Sam 123", "Rotaonly"]
+
+// Colours for sticky and non sticky (dry?) news articles.
+this.stickyNewsItemColour = "yellow"
+this.nonstickyNewsItemColour = "white"
+
+// The width (in cells) of the table that holds volunteer photos.
+this.volunteersCellCount = 12
+
+// Colours for the names of volunteers depending on whether they're present or on leave.
+this.presentVolunteerNameColour = "black"
+this.onLeaveVolunteerNameColour = "red"
+
+// Suffixes for volunteer names depending on whether they're present or on leave.
+this.presentVolunteerNameSuffix = ""
+this.onLeaveVolunteerNameSuffix = " (L)"
