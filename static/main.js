@@ -16,7 +16,6 @@ let newsIndex = -1
 const newsTitle = document.getElementById("newsTitle")
 const newsCreator = document.getElementById("newsCreator")
 const newsBody = document.getElementById("newsBody")
-const status = document.getElementById("status")
 const shiftsTable = document.getElementById("shiftsTable")
 const shiftsStatus = document.getElementById("shiftsStatus")
 const specialShifts = document.getElementById("specialShifts")
@@ -36,9 +35,6 @@ function clearElement(e) {
 function loadJSON(url, func, onerror) {
     // Load JSON from url, and pass it through func.
     // If anything goes wrong, call onerror.
-    if (onerror === undefined) { // Let's add a default function.
-        onerror = () => status.innerText = "Unable to decode JSON."
-    }
     let req = new XMLHttpRequest()
     req.open("GET", url)
     req.onload = () => {
@@ -190,7 +186,6 @@ function loadShifts() {
             }
         }
     }, () => {
-        status.innerText = "Unable to load shifts."
         shiftsStatus.hidden = false // Let everyone know we're loading.
         shiftsTable.hidden = true // Hide it before we load again.
     })
@@ -198,9 +193,7 @@ function loadShifts() {
 
 function loadVolunteers() {
     // Load all pictures and volunteer names to the listeners and supports tables.
-    status.innerText = "Loading volunteer list..."
     loadJSON(directoryURL, (data) => { // Get a list of volunteer objects.
-        status.innerText = `Volunteers last loaded ${new Date()}.`
         for (let tag of [listenersTable, supportsTable]) { // Clear them.
             while (tag.rows.length) {
                 tag.deleteRow(0)
@@ -250,7 +243,7 @@ function loadVolunteers() {
             }
             cell.appendChild(div) // Finally add the div to the cell below the image.
         }
-    }, () => status.innerText = "Could not get volunteer list.")
+    })
 }
 
 function loadTextTable(data, unanswered, oldest) {
@@ -288,8 +281,7 @@ function loadEmailStats() {
     // Load email statistics and pass them through loadTextTable.
     loadJSON(
         baseURL + "email/",
-        (data) => loadTextTable(data, document.getElementById("unansweredEmail"), document.getElementById("oldestEmail")),
-        () => status.innerText = "Unable to retrieve email statistics"
+        (data) => loadTextTable(data, document.getElementById("unansweredEmail"), document.getElementById("oldestEmail"))
     )
 }
 
@@ -297,7 +289,6 @@ function loadSmsStats() {
     // Load SMS statistics and pass them through loadTextTable.
     loadJSON(
         baseURL + "sms/",
-        (data) => loadTextTable(data, document.getElementById("unansweredSms"), document.getElementById("oldestSms")),
-        () => status.innerText = "Unable to retrieve SMS statistics"
+        (data) => loadTextTable(data, document.getElementById("unansweredSms"), document.getElementById("oldestSms"))
     )
 }
