@@ -67,6 +67,7 @@ def directory():
         d['id'] = int(href.split('/')[-1])
         d['on_leave'] = bool(td.find('img', attrs={'alt': 'On leave'}))
         results.append(d)
+        results = sorted(results, key=lambda v: v['id'])
     return jsonify(results)
 
 
