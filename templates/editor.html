@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>File Editor - {{ filename }}</title>
+    </head>
+    <body>
+        <h1>{{ path }}</h1>
+        <form method="POST">
+            <p><label>Code: <textarea name="code" cols="80" rows="160">{{ contents }}</textarea></label></p>
+            <p><input type="submit" value="Upload"</p>
+        </form>
+    </body>
+</html>

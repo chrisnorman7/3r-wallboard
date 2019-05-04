@@ -1,4 +1,5 @@
 import os
+import os.path
 import re
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
@@ -7,7 +8,9 @@ from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup
 from dateparser import parse as parse_date
-from flask import abort, Flask, jsonify, render_template, request
+from flask import (
+    abort, Flask, jsonify, render_template, request, redirect, url_for
+)
 from gevent import get_hub
 from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
@@ -24,6 +27,7 @@ special_rota_ids = [
     156,  # Duty Deputy
 ]
 
+editor_filename_regexp = '(%s[?])([0-9]+)'
 time_format = '%H:%M'
 shift_history_threshold = 5
 
@@ -245,7 +249,9 @@ def shifts():
 
 @app.route('/version/')
 def version():
-    return os.popen('git describe --tags --always').read().strip()
+    return os.path.getmtime(
+        os.path.join(app.jinja_loader.searchpath[0], 'index.html')
+    )
 
 
 @app.route('/news/')
@@ -279,8 +285,46 @@ parser.add_argument(
 )
 
 
+parser.add_argument(
+    '-a', '--allow-edits', action='store_true', default=False,
+    help='Automatically create /edit route'
+)
+
+
+def repl(m):
+    filename, i = m.groups()
+    i = int(i)
+    return '%s%d' % (filename, i + 1)
+
+
+def editor(filename):
+    index_path = os.path.join(app.jinja_loader.searchpath[0], 'index.html')
+    path = os.path.join('static', filename)
+    if not os.path.isfile(path):
+        return abort(404, 'No such file: %s.' % path)
+    if request.method == 'POST':
+        code = request.form['code'].replace('\r\n', '\n')
+        with open(path, 'w') as f:
+            f.write(code)
+        with open(index_path, 'r') as f:
+            code = f.read()
+        c = re.compile(editor_filename_regexp % filename)
+        code = re.sub(c, repl, code)
+        with open(index_path, 'w') as f:
+            f.write(code)
+        return redirect(url_for('editor', filename=filename))
+    with open(path, 'r') as f:
+        code = f.read()
+    return render_template(
+        'editor.html', filename=filename, contents=code, path=path
+    )
+
+
 if __name__ == '__main__':
     args = parser.parse_args()
+    if args.allow_edits:
+        app.logger.warning('Editor enabled!!!')
+        app.route('/edit/<filename>', methods=['GET', 'POST'])(editor)
     app.config['DEBUG'] = args.debug
     app.config['3R_APIKEY'] = args.api_key_file.read()
     args.api_key_file.close()
