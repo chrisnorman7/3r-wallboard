@@ -1,4 +1,4 @@
-/* globals isSupportPerson, updateInterval, volInterval, emailInterval, smsInterval, shiftInterval, newsInterval, volunteerLink, ignoredVolunteers, stickyNewsItemColour, nonstickyNewsItemColour, volunteersCellCount, presentVolunteerNameColour, onLeaveVolunteerNameColour, presentVolunteerNameSuffix, onLeaveVolunteerNameSuffix */
+/* globals isSupportPerson, updateInterval, volInterval, emailInterval, smsInterval, shiftInterval, newsInterval, volunteerLink, ignoredVolunteers, stickyNewsItemColour, nonstickyNewsItemColour, volunteersCellCount, presentVolunteerNameColour, onLeaveVolunteerNameColour, presentVolunteerNameSuffix, onLeaveVolunteerNameSuffix, pageTitle */
 
 let version = null // Used for updates.
 
@@ -84,6 +84,7 @@ function startTasks() {
     // Put any tasks that should run here.
     stopTasks()
     startTask(() => { // Check version and reload the page if necessary.
+        document.title = pageTitle
         if (version !== null) { // Initially set by window.onload.
             getVersion((value) => {
                 if (value != version) { // The server has been updated.

@@ -4,6 +4,9 @@
 //
 // Modify this file to configure your organisation's notice board.
 
+// Page title.
+this.pageTitle = "Wall Board - Coventry Samaritans"
+
 // A function to determine whether or not a particular volunteer is a member of support staff or not.
 this.isSupportPerson = function(v) {
     return v.name.match(/[^- ]+[- ]S[0-9]+/)
