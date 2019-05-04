@@ -119,55 +119,67 @@ function loadShifts() {
         for (let tag of [specialShifts, previousShift, currentShift, nextShift]) {
             clearElement(tag)
         }
-        for (let shift of data.sort((a, b) => {
-            if (a.name == b.name) {
-                return 0
-            } else if (a.name < b.name) {
-                return -1
-            } else {
-                return -1
-            }
-        })) {
+        let ss = []
+        let ps = []
+        let cs = []
+        let ns = []
+        for (let shift of data) {
             let shiftType = shift.type
-            let cell = null
             if (shiftType == "past") {
-                cell = previousShift
+                ps.push(shift)
             } else if (shiftType == "special") {
-                cell = specialShifts
+                ss.push(shift)
             } else if (shiftType == "present") {
-                cell = currentShift
+                cs.push(shift)
             } else if (shiftType == "future") {
-                cell = nextShift
+                ns.push(shift)
             } else {
                 throw Error(`Invalid shift type: ${shiftType}.`)
             }
-            let tags = []
-            let h3 = document.createElement("h3")
-            h3.innerText = `${shift.name} (${shift.time})`
-            tags.push(h3)
-            for (let volunteer of shift.volunteers) {
-                let h4 = document.createElement("h4")
-                h4.innerText = volunteer.name
-                tags.push(h4)
-                tags.push(volunteerLink(volunteer))
-                let p = document.createElement("p")
-                for (let detail of volunteer.details) {
-                    let string = `${detail.name}: ${detail.value}`
-                    let value = null
-                    if (detail.name.startsWith("Telephone")) {
-                        value = document.createElement("a")
-                        value.innerText = string
-                        value.href = `tel:${detail.value.replace(" ", "")}`
-                    } else {
-                        value = document.createTextNode(string)
-                    }
-                    p.appendChild(value)
-                    p.appendChild(document.createElement("br"))
+        }
+        for (let [shifts, cell] of         [
+            [ss, specialShifts],
+            [ps, previousShift],
+            [cs, currentShift],
+            [ns, nextShift]
+        ]) {
+            for (let shift of shifts.sort((a, b) => {
+                if (a.name == b.name) {
+                    return 0
+                } else if (a.name < b.name) {
+                    return -1
+                } else {
+                    return 1
                 }
-                tags.push(p)
-            }
-            for (let tag of tags) {
-                cell.appendChild(tag)
+            })) {
+                let tags = []
+                let h3 = document.createElement("h3")
+                h3.innerText = `${shift.name} (${shift.time})`
+                tags.push(h3)
+                for (let volunteer of shift.volunteers) {
+                    let h4 = document.createElement("h4")
+                    h4.innerText = volunteer.name
+                    tags.push(h4)
+                    tags.push(volunteerLink(volunteer))
+                    let p = document.createElement("p")
+                    for (let detail of volunteer.details) {
+                        let string = `${detail.name}: ${detail.value}`
+                        let value = null
+                        if (detail.name.startsWith("Telephone")) {
+                            value = document.createElement("a")
+                            value.innerText = string
+                            value.href = `tel:${detail.value.replace(" ", "")}`
+                        } else {
+                            value = document.createTextNode(string)
+                        }
+                        p.appendChild(value)
+                        p.appendChild(document.createElement("br"))
+                    }
+                    tags.push(p)
+                }
+                for (let tag of tags) {
+                    cell.appendChild(tag)
+                }
             }
         }
     }, () => {
