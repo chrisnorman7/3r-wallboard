@@ -47,5 +47,5 @@ table, th, td {
     height: 100px;
     background-color: red;
     animation-name: blink;
-animation-duration: 2s;
-}#
+    animation-duration: 2s;
+}
