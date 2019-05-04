@@ -56,7 +56,7 @@ function loadJSON(url, func, onerror) {
     }
     req.onerror = () => {
         main.hidden = true
-        errorDiv.hidden = false
+        // errorDiv.hidden = false
         onerror()
     }
     req.send()
