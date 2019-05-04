@@ -246,16 +246,6 @@ function loadVolunteers() {
             }
             cell.appendChild(div) // Finally add the div to the cell below the image.
         }
-        for (let tag of [listenersTable, supportsTable]) { // Finish off the rows with empty cells.
-            let row = tag.rows[tag.rows.length - 1]
-            if (row === undefined) { // No rows.
-                continue
-            }
-            while (row.cells.length < volunteersCellCount) { // Make more cells.
-                let cell = row.insertCell(-1)
-                cell.role = "gridcell" // Otherwise it's invisible to screen readers.
-            }
-        }
     }, () => status.innerText = "Could not get volunteer list.")
 }
 
