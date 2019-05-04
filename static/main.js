@@ -67,6 +67,7 @@ function getVersion(func) {
     let req = new XMLHttpRequest()
     req.onload = () => {
         loading.hidden = true // Hide the loading text.
+        errorDiv.hidden = true
         main.hidden = false // Show the main page.
         func(req.response)
     }
