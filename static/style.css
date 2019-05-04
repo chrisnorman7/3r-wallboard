@@ -42,7 +42,7 @@ table, th, td {
     to {background-color: yellow;}
 }
 
-#error {
+#errorDiv {
     width: 100px;
     height: 100px;
     background-color: red;
