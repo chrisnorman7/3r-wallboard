@@ -36,3 +36,16 @@ table, th, td {
     border: 1px solid black;
     text-align: center;
 }
+
+@keyframes blink {
+    from {background-color: red;}
+    to {background-color: yellow;}
+}
+
+#loading {
+    width: 100px;
+    height: 100px;
+    background-color: red;
+    animation-name: blink;
+animation-duration: 2s;
+}#
