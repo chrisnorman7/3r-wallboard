@@ -17,6 +17,8 @@ from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
 from requests import Session
 
+from updater import file_updated
+
 # We can ignore multiple rota IDs, so we're not showing stuff to people who
 # don't care about it.
 ignored_rota_ids = [
@@ -31,10 +33,6 @@ ignored_rota_ids = [
 special_rota_ids = [
     156,  # Duty Deputy
 ]
-
-# This regexp is used so that the static file editor can bump version numbers
-# in index.html.
-editor_filename_regexp = '(%s[?])([0-9]+)'
 
 # This format is used when showing shift times. It means hour:minute.
 time_format = '%H:%M'
@@ -386,18 +384,9 @@ parser.add_argument(
 )
 
 
-def repl(m):
-    """Used with re.sub."""
-    filename, i = m.groups()
-    i = int(i)
-    return '%s%d' % (filename, i + 1)
-
-
 def editor(filename):
     """Return the static file editor."""
-    # Store the path to index.html, so we can modify it later on.
-    index_path = os.path.join(app.jinja_loader.searchpath[0], 'index.html')
-    # Get a full path to te filename we were given.
+    # Get a full path to the filename we were given.
     path = os.path.join('static', filename)
     if not os.path.isfile(path):
         # They entered an incorrect path.
@@ -415,17 +404,7 @@ def editor(filename):
         # Now let's modify index.html. This is done in two stages:
         # 1: Read the file and modify the string in memory.
         # 2: Write the string back to the file.
-        with open(index_path, 'r') as f:
-            code = f.read()  # Get the code.
-        # Let's build a new regular expression, based on the filename they're
-        # editing.
-        # We use just the filename, not the path.
-        c = re.compile(editor_filename_regexp % filename)
-        # Alter the code in memory.
-        code = re.sub(c, repl, code)
-        # Now write the file back to index.html.
-        with open(index_path, 'w') as f:
-            f.write(code)
+        file_updated(app, filename)
         # Now redirect them back to the GET page, because hitting refresh and
         # being told the page relied on form data you previously entered is
         # annoying. There are unacceptable levels of unrest, after all!
