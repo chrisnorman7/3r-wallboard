@@ -15,7 +15,7 @@ let newsIndex = -1
 // Various elements on the page:
 const main = document.getElementById("main")
 const loading = document.getElementById("loading")
-const errorDiv = document.getElementById("error")
+const errorDiv = document.getElementById("errorDiv")
 const newsTitle = document.getElementById("newsTitle")
 const newsCreator = document.getElementById("newsCreator")
 const newsBody = document.getElementById("newsBody")
