@@ -17,7 +17,7 @@ from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
 from requests import Session
 
-from updater import file_updated
+import updater
 
 # We can ignore multiple rota IDs, so we're not showing stuff to people who
 # don't care about it.
@@ -404,7 +404,7 @@ def editor(filename):
         # Now let's modify index.html. This is done in two stages:
         # 1: Read the file and modify the string in memory.
         # 2: Write the string back to the file.
-        file_updated(app, filename)
+        updater.file_updated(app, path)
         # Now redirect them back to the GET page, because hitting refresh and
         # being told the page relied on form data you previously entered is
         # annoying. There are unacceptable levels of unrest, after all!
