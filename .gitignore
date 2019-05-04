@@ -105,3 +105,4 @@ venv.bak/
 t.py
 *.json
 *.woff2
+api.key

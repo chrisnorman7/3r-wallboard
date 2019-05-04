@@ -1,24 +1,15 @@
-/* globals startSlideshow, isSupportPerson, updateInterval, volInterval, emailInterval, smsInterval, shiftInterval, newsInterval, volunteerLink */
+/* globals isSupportPerson, updateInterval, volInterval, emailInterval, smsInterval, shiftInterval, newsInterval, volunteerLink */
 
 let version = null
 
 const baseURL = `${location.protocol}//${location.host}/`
 const versionURL = baseURL + "version"
-const loginURL = baseURL + "login/"
 const directoryURL = baseURL + "directory/"
 const shiftURL = baseURL + "shifts"
 const newsURL = baseURL + "news"
 let newsIndex = -1
 
 const news = document.getElementById("news")
-const loginForm = document.getElementById("loginForm")
-loginForm.hidden = true
-
-const username = document.getElementById("username")
-const password = document.getElementById("password")
-
-const main = document.getElementById("main")
-main.hidden = true
 
 const status = document.getElementById("status")
 const shifts = document.getElementById("shifts")
@@ -38,15 +29,16 @@ function loadJSON(url, func, onerror) {
             j = JSON.parse(req.response)
         }
         catch (err) {
-            requireLogin()
+            status.innerText = "Unable to decode JSON."
         }
         if (j !== null) {
             func(j)
         }
     }
     req.onerror = () => {
-        requireLogin()
-        onerror
+        if (onerror !== undefined) {
+            onerror()
+        }
     }
     req.send()
 }
@@ -73,8 +65,6 @@ function stopTasks() {
 
 function startTasks() {
     stopTasks()
-    main.hidden = false
-    loginForm.hidden = true
     startTask(
         () => {
             if (version !== null) {
@@ -114,26 +104,11 @@ function startTasks() {
             news.appendChild(div)
         })
     }, newsInterval)
-    if (startSlideshow) {
-        startSlideshow()
-    }
-}
-
-function requireLogin() {
-    main.hidden = true
-    loginForm.hidden = false
-    status.innerText = "Awaiting login..."
 }
 
 window.onload = () => {
     getVersion((value) => version = value)
-    loadJSON(baseURL + "authenticated/", (data) => {
-        if (data) {
-            startTasks()
-        } else {
-            requireLogin()
-        }
-    }, () => status.innerText = "Unable to ascertain authentication state.")
+    startTasks()
 }
 
 function loadShifts() {
@@ -289,29 +264,4 @@ function loadSmsStats() {
         (data) => loadTextTable(data, document.getElementById("unansweredSms"), document.getElementById("oldestSms")),
         () => status.innerText = "Unable to retrieve SMS statistics"
     )
-}
-
-loginForm.onsubmit = (e) => {
-    e.preventDefault()
-    if (!username.value || !password.value) {
-        alert("You must enter a valid 3 rings username and password.")
-        username.focus()
-    } else {
-        let fd = new FormData()
-        fd.append("username", username.value)
-        fd.append("password", password.value)
-        let req = new XMLHttpRequest()
-        req.onerror = () => {
-            alert("Setting username and password failed.")
-            username.focus()
-        }
-        req.onload = () => {
-            username.value = ""
-            password.value = ""
-            loginForm.hidden = true
-            startTasks()
-        }
-        req.open("POST", loginURL)
-        req.send(fd)
-    }
 }

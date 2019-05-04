@@ -8,75 +8,38 @@
     </head>
     <body>
         <p id="status" aria-live="polite" aria-atomic="false" aria-relevant="additions text">Loading...</p>
-        <form id="loginForm">
-            <h1>Login To Three Rings</h1>
-            <p><label>Username: <input type="text" autocomplete="username" id="username"></label></p>
-            <p><label>Password: <input type="password" autocomplete="current-password" id="password"></label></p>
-            <p><input type="submit" value="Login"></p>
-        </form>
-        <div id="main">
-            {% if single %}
-            <h1>Status</h1>
-            {% endif %}
-            <div class="screen" id="screen1">
-                {% if not single %}
-                <h1>Branch Status</h1>
-                {% endif %}
-                <h2>Current Shifts</h2>
-                <div id="shifts"><p>Loading shifts...</p></div>
-            </div>
-            <div class="screen" id="screen2">
-                {% if not single %}
-                <h1>Volunteer Photos</h1>
-                {% endif %}
-                <h2>Listening Volunteers</h2>
-                <table id="listeners"></table>
-                <h2>Support Volunteers</h2>
-                <table id="supports"></table>
-            </div>
-            <div class="screen" id="screen3">
-                {% if not single %}
-                <h1>Text Communication Statistics</h1>
-                {% endif %}
-                <h2>Email statistics</h2>
-                <table>
-                    <tr>
-                        <th>Unanswered Emails</th>
-                        <th>Age of oldest unanswered email</th>
-                    </tr>
-                    <tr>
-                        <td id="unansweredEmail"></td>
-                        <td id="oldestEmail"></td>
-                    </tr>
-                </table>
-                <h2>SMS Statistics</h2>
-                <table>
-                    <tr>
-                        <th>Unanswered texts</th>
-                        <th>Age of oldest unanswered text</th>
-                    </tr>
-                    <tr>
-                        <td id="unansweredSms"></td>
-                        <td id="oldestSms"></td>
-                    </tr>
-                </table>
-            </div>
-            <div class="screen" id="screen4">
-                {% if not single %}
-                <h1>Branch News</h1>
-                {% endif %}
-                <h2>News</h2>
-                <div id="news"><p>Loading news...</p></div>
-            </div>
-        </div>
+        <h1>Status</h1>
+        <h2>Current Shifts</h2>
+        <div id="shifts"><p>Loading shifts...</p></div>
+        <h2>Listening Volunteers</h2>
+        <table id="listeners"></table>
+        <h2>Support Volunteers</h2>
+        <table id="supports"></table>
+        <h2>Email statistics</h2>
+        <table>
+            <tr>
+                <th>Unanswered Emails</th>
+                <th>Age of oldest unanswered email</th>
+            </tr>
+            <tr>
+                <td id="unansweredEmail"></td>
+                <td id="oldestEmail"></td>
+            </tr>
+        </table>
+        <h2>SMS Statistics</h2>
+        <table>
+            <tr>
+                <th>Unanswered texts</th>
+                <th>Age of oldest unanswered text</th>
+            </tr>
+            <tr>
+                <td id="unansweredSms"></td>
+                <td id="oldestSms"></td>
+            </tr>
+        </table>
+        <h2>News</h2>
+        <div id="news"><p>Loading news...</p></div>
         <script src="/static/locals.js?2"></script>
-        <script src="/static/main.js?34"></script>
-        {% if not single %}
-        <script src="/static/slideshow.js?1"></script>
-        {% else %}
-        <script>
-        startSlideshow = null
-        </script>
-        {% endif %}
+        <script src="/static/main.js?35"></script>
     </body>
 </html>

@@ -1,6 +1,6 @@
 import os
 
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
@@ -30,27 +30,15 @@ shift_url = base_url + 'shift.json'
 http = Session()
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.config['3R_USERNAME'] = None
-app.config['3R_PASSWORD'] = None
-app.config['3R_AUTHENTICATED'] = False
-app.config['SHIFT_VERSION'] = 0
-
-
-def get_auth():
-    auth = app.config['3R_USERNAME'], app.config['3R_PASSWORD']
-    if not all(auth):
-        return abort(500, 'You must supply a username and a password.')
-    return auth
+app.config['3R_APIKEY'] = None
 
 
 def get_url(url, auth=True, json=False):
     """Get a URL, returning abort or the content retrieved from the URL."""
+    headers = {'user-agent': app.config['USER_AGENT']}
     if auth:
-        auth = get_auth()
-    else:
-        auth = None
-    r = http.get(url, auth=auth)
-    app.config['3R_AUTHENTICATED'] = r.ok
+        headers['Authorization'] = f'APIKEY {app.config["3R_APIKEY"]}'
+    r = http.get(url, headers=headers)
     if r.ok:
         if json:
             return r.json()
@@ -61,16 +49,6 @@ def get_url(url, auth=True, json=False):
 @app.route('/')
 def index():
     return render_template('index.html')
-
-
-@app.route('/single/')
-def single():
-    return render_template('index.html', single=True)
-
-
-@app.route('/authenticated/')
-def authenticated():
-    return jsonify(app.config['3R_AUTHENTICATED'])
 
 
 @app.route('/directory/')
@@ -187,7 +165,7 @@ def shifts():
         else:
             prefix = ''
         name = f'{prefix} {name}'
-        d = dict(name=name, time=time, volunteers=[], id=rid)
+        d = dict(name=name, time=time, start=start, volunteers=[], id=rid)
         for signup in shift['volunteer_shifts']:
             volunteer = signup['volunteer']
             id = volunteer['id']
@@ -217,6 +195,7 @@ def shifts():
                 )
             )
         results.append(d)
+    results = sorted(results, key=lambda r: r.pop('start'))
     return jsonify(results)
 
 
@@ -231,6 +210,16 @@ def news():
 
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+
+parser.add_argument(
+    '-k', '--api-key-file', default='api.key', type=FileType('r'),
+    metavar='<KEYFILE>', help='The API key to use for logging into Three Rings'
+)
+
+parser.add_argument(
+    '-u', '--user-agent-file', type=FileType('r'), default='user-agent.txt',
+    help='The file containing the user agent string to be sent with requests'
+)
 
 parser.add_argument(
     '-i', '--interface', default='0.0.0.0', help='The interface to bind to'
@@ -249,6 +238,10 @@ parser.add_argument(
 if __name__ == '__main__':
     args = parser.parse_args()
     app.config['DEBUG'] = args.debug
+    app.config['3R_APIKEY'] = args.api_key_file.read()
+    args.api_key_file.close()
+    app.config['USER_AGENT'] = args.user_agent_file.read()
+    args.user_agent_file.close()
     get_hub().NOT_ERROR += (KeyboardInterrupt,)
     http_server = WSGIServer((args.interface, args.port), app, spawn=Pool())
     try:
