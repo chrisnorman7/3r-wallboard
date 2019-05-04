@@ -77,22 +77,23 @@ def thumb(id):
 
 def textual_stats(url):
     s = BeautifulSoup(get_url(url, auth=False), 'html.parser')
-    rows = s.find_all('table')[2].find_all('tr')
-    try:
-        try:
-            unanswered = int(rows[4].find_all('td')[0].text)
-            oldest = rows[5].find_all('td')[0].text.split('(')[1].strip(')')
-        except ValueError:
-            unanswered = 0
-            oldest = '00:00'
-    except ValueError:
-        unanswered = int(rows[3].find_all('td')[0].text)
-        oldest = rows[4].find_all('td')[0].text.split('(')[1].strip(')')
+    table = s.find_all('table')[2]
+    tds = [td.text for td in table.find_all('td')]
+    if len(tds) == 7:
+        # We're dealing with emails.
+        unanswered = tds[4]
+        oldest = tds[5]
+    else:
+        # We are dealing with texts.
+        unanswered = tds[3]
+        oldest = tds[4]
+    unanswered = int(unanswered)
+    oldest = oldest.split('(')[1].strip(')')
     return jsonify(dict(unanswered=unanswered, oldest=oldest))
 
 
 @app.route('/email/')
-def get_email_stats():
+def email():
     return textual_stats('http://www.ear-mail.org.uk/')
 
 
