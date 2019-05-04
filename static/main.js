@@ -119,7 +119,15 @@ function loadShifts() {
         for (let tag of [specialShifts, previousShift, currentShift, nextShift]) {
             clearElement(tag)
         }
-        for (let shift of data) {
+        for (let shift of data.sorted((a, b) => {
+            if (a.name == b.name) {
+                return 0
+            } else if (a.name < b.name) {
+                return -1
+            } else {
+                return -1
+            }
+        })) {
             let shiftType = shift.type
             let cell = null
             if (shiftType == "past") {

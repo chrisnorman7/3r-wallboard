@@ -249,8 +249,10 @@ def shifts():
 
 @app.route('/version/')
 def version():
-    return os.path.getmtime(
-        os.path.join(app.jinja_loader.searchpath[0], 'index.html')
+    return jsonify(
+        os.path.getmtime(
+            os.path.join(app.jinja_loader.searchpath[0], 'index.html')
+        )
     )
 
 
