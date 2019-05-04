@@ -1,4 +1,5 @@
 import os
+import re
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
 from datetime import datetime, timedelta
@@ -19,11 +20,16 @@ ignored_rota_ids = [
     720,  # Onley Debrief
 ]
 
+special_rota_ids = [
+    156,  # Duty Deputy
+]
+
 time_format = '%H:%M'
 shift_history_threshold = 5
 
 base_url = 'https://www.3r.org.uk/'
 directory_url = base_url + 'directory'
+volunteer_number_regexp = re.compile('^[^0-9]+([0-9]+)$')
 volunteer_url = base_url + 'directory/%d?format=json'
 shift_url = base_url + 'shift.json'
 
@@ -59,15 +65,20 @@ def directory():
     )
     results = []
     for td in tds:
-        d = {}
         a = td.find('a')
-        d['name'] = a.text
+        name = a.text
+        d = {'name': name}
+        m = volunteer_number_regexp.match(name)
+        if m is None:
+            d['number'] = 0
+        else:
+            d['number'] = int(m.groups()[0])
         href = a.get('href')
         d['url'] = 'https://www.3r.org.uk' + href
         d['id'] = int(href.split('/')[-1])
         d['on_leave'] = bool(td.find('img', attrs={'alt': 'On leave'}))
         results.append(d)
-        results = sorted(results, key=lambda v: v['id'])
+    results = sorted(results, key=lambda v: v['number'])
     return jsonify(results)
 
 
@@ -148,11 +159,14 @@ def shifts():
         shift['end'] = end
         if now < end:  # Shift ends in the future.
             if now < start:  # Shift also starts in the future.
+                shift['type'] = 'future'
                 future_shift_earliest = min(future_shift_earliest, start)
                 future_shifts.setdefault(rid, []).append(shift)
             else:  # Shift is currently running.
+                shift['type'] = 'present'
                 current_shifts.setdefault(rid, []).append(shift)
         else:
+            shift['type'] = 'past'
             past_shift_latest = max(past_shift_latest, start)
             past_shifts.setdefault(rid, []).append(shift)
     shifts.clear()
@@ -168,6 +182,10 @@ def shifts():
             shifts.append(shift)
     for shift in shifts:
         rid = shift['rota']['id']
+        if rid in special_rota_ids:
+            shift_type = 'special'
+        else:
+            shift_type = shift['type']
         start = shift['start']
         end = shift['end']
         rota_name = shift['rota']['name']
@@ -188,7 +206,10 @@ def shifts():
         else:
             prefix = ''
         name = f'{prefix} {name}'
-        d = dict(name=name, time=time, start=start, volunteers=[], id=rid)
+        d = dict(
+            name=name, type=shift_type, time=time, start=start, volunteers=[],
+            id=rid
+        )
         for signup in shift['volunteer_shifts']:
             volunteer = signup['volunteer']
             id = volunteer['id']

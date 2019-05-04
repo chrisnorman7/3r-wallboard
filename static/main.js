@@ -14,7 +14,13 @@ const newsCreator = document.getElementById("newsCreator")
 const newsBody = document.getElementById("newsBody")
 
 const status = document.getElementById("status")
-const shifts = document.getElementById("shifts")
+
+const shiftsTable = document.getElementById("shiftsTable")
+const shiftsStatus = document.getElementById("shiftsStatus")
+const specialShifts = document.getElementById("specialShifts")
+const previousShift = document.getElementById("previousShift")
+const currentShift = document.getElementById("currentShift")
+const nextShift = document.getElementById("nextShift")
 
 function clearElement(e) {
     while (e.childElementCount) {
@@ -101,31 +107,42 @@ function startTasks() {
 }
 
 window.onload = () => {
+    shiftsTable.hidden = true
     getVersion((value) => version = value)
     startTasks()
 }
 
 function loadShifts() {
     loadJSON(shiftURL, (data) => {
-        clearElement(shifts)
+        shiftsStatus.hidden = true
+        shiftsTable.hidden = false
+        for (let tag of [specialShifts, previousShift, currentShift, nextShift]) {
+            clearElement(tag)
+        }
         for (let shift of data) {
+            let shiftType = shift.type
+            let cell = null
+            if (shiftType == "past") {
+                cell = previousShift
+            } else if (shiftType == "special") {
+                cell = specialShifts
+            } else if (shiftType == "present") {
+                cell = currentShift
+            } else if (shiftType == "future") {
+                cell = nextShift
+            } else {
+                throw Error(`Invalid shift type: ${shiftType}.`)
+            }
+            let tags = []
             let h3 = document.createElement("h3")
-            h3.tabIndex = "0"
-            h3.style.textAlign = "center"
             h3.innerText = `${shift.name} (${shift.time})`
-            h3.id = shift.id
-            shifts.appendChild(h3)
-            let t = document.createElement("table")
-            t.align = "center"
-            let cols = shift.volunteers.length
-            let rows = 0
-            let data = []
-            for (let i = 0; i < cols; i++) {
-                let volunteer = shift.volunteers[i]
-                let column = [
-                    volunteer.name,
-                    volunteerLink(volunteer)
-                ]
+            tags.push(h3)
+            for (let volunteer of shift.volunteers) {
+                let h4 = document.createElement("h4")
+                h4.innerText = volunteer.name
+                tags.push(h4)
+                tags.push(volunteerLink(volunteer))
+                let p = document.createElement("p")
                 for (let detail of volunteer.details) {
                     let string = `${detail.name}: ${detail.value}`
                     let value = null
@@ -134,40 +151,22 @@ function loadShifts() {
                         value.innerText = string
                         value.href = `tel:${detail.value.replace(" ", "")}`
                     } else {
-                        value = string
+                        value = document.createTextNode(string)
                     }
-                    column.push(value)
+                    p.appendChild(value)
+                    p.appendChild(document.createElement("br"))
                 }
-                data.push(column)
-                rows = Math.max(rows, column.length)
+                tags.push(p)
             }
-            for (let row = 0; row < rows; row++) {
-                let r = document.createElement("tr")
-                for (let col = 0; col < cols; col++) {
-                    let tag = null
-                    if (row) {
-                        tag = "td"
-                    } else {
-                        tag = "th"
-                    }
-                    tag = document.createElement(tag)
-                    tag.style.textAlign = "center"
-                    let value = data[col][row]
-                    if (value === undefined) {
-                        value = document.createTextNode(" ")
-                    } else if (typeof(value) == "string") {
-                        value= document.createTextNode(value)
-                    } else {
-                        // Value is already a tag (hopefully).
-                    }
-                    tag.appendChild(value)
-                    r.appendChild(tag)
-                }
-                t.appendChild(r)
+            for (let tag of tags) {
+                cell.appendChild(tag)
             }
-            shifts.appendChild(t)
         }
-    }, () => status.innerText = "Unable to load shifts.")
+    }, () => {
+        status.innerText = "Unable to load shifts."
+        shiftsStatus.hidden = false
+        shiftsTable.hidden = true
+    })
 }
 
 const listenersTable = document.getElementById("listeners")
@@ -204,6 +203,8 @@ function loadVolunteers() {
             cell.id = volunteer.id
             cell.classList.add("volunteer")
             cell.classList.add(volunteerType)
+            cell.appendChild(volunteerLink(volunteer))
+            cell.appendChild(document.createElement("br"))
             let span = document.createElement("span")
             span.innerText = volunteer.name
             span.style.textAlign = "center"
@@ -212,8 +213,6 @@ function loadVolunteers() {
                 span.innerText += " (On Leave)"
             }
             cell.appendChild(span)
-            cell.appendChild(document.createElement("br"))
-            cell.appendChild(volunteerLink(volunteer))
             row.appendChild(cell)
         }
     }, () => status.innerText = "Could not get volunteer list.")
