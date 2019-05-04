@@ -23,6 +23,9 @@ function clearElement(e) {
 }
 
 function loadJSON(url, func, onerror) {
+    if (onerror !== undefined) {
+        onerror = () => status.innerText = "Unable to decode JSON."
+    }
     let req = new XMLHttpRequest()
     req.open("GET", url)
     req.onload = () => {
@@ -31,17 +34,13 @@ function loadJSON(url, func, onerror) {
             j = JSON.parse(req.response)
         }
         catch (err) {
-            status.innerText = "Unable to decode JSON."
+            onerror()
         }
         if (j !== null) {
             func(j)
         }
     }
-    req.onerror = () => {
-        if (onerror !== undefined) {
-            onerror()
-        }
-    }
+    req.onerror = onerror
     req.send()
 }
 
