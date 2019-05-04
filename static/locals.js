@@ -56,8 +56,8 @@ this.nonstickyNewsItemColour = "white"
 // The width (in cells) of the table that holds volunteer photos.
 this.volunteersCellCount = 12
 
-// Colours for the names of volunteers depending on whether they're present or on leave.
-this.presentVolunteerNameColour = "black"
+// Colours for the names of volunteers depending on whether they're present or on leave. Set to null to not set.
+this.presentVolunteerNameColour = null
 this.onLeaveVolunteerNameColour = "red"
 
 // Suffixes for volunteer names depending on whether they're present or on leave.

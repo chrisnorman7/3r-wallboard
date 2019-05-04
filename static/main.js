@@ -238,10 +238,14 @@ function loadVolunteers() {
             let div = document.createElement("div") // Use a div so we can modify the style.
             div.innerText = volunteer.name
             if (volunteer.on_leave) {
-                div.style.color = onLeaveVolunteerNameColour
+                if (onLeaveVolunteerNameColour !== null) {
+                    div.style.color = onLeaveVolunteerNameColour
+                }
                 div.innerText += onLeaveVolunteerNameSuffix
             } else {
-                div.style.color = presentVolunteerNameColour
+                if (presentVolunteerNameColour !== null) {
+                    div.style.color = presentVolunteerNameColour
+                }
                 div.innerText += presentVolunteerNameSuffix
             }
             cell.appendChild(div) // Finally add the div to the cell below the image.
