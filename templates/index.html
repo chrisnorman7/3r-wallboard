@@ -7,57 +7,60 @@
         <link rel="stylesheet" type="text/css" href="/static/style.css?1557006668">
     </head>
     <body>
-        <h1>Status</h1>
-        <h2>Branch Shifts</h2>
-        <div>
-            <p id="shiftsStatus">Loading shifts...</p>
-            <table id="shiftsTable">
+        <div id="main">
+            <h1>Status</h1>
+            <h2>Branch Shifts</h2>
+            <div>
+                <p id="shiftsStatus">Loading shifts...</p>
+                <table id="shiftsTable">
+                    <tr>
+                        <th class="shiftCell">Previous Shift</th>
+                        <th class="shiftCell">Current Shift</th>
+                        <th class="shiftCell">Next Shift</th>
+                    </tr>
+                    <tr>
+                        <td class="shiftCell"></td>
+                        <td class="shiftCell" id="specialShifts"></td>
+                        <td class="shiftCell"></td>
+                    </tr>
+                    <tr>
+                        <td class="shiftCell" id="previousShift"></td>
+                        <td class="shiftCell" id="currentShift"></td>
+                        <td class="shiftCell" id="nextShift"></td>
+                    </tr>
+                </table>
+            </div>
+            <h2>Listening Volunteers</h2>
+            <table role="grid" id="listeners"></table>
+            <h2>Support Volunteers</h2>
+            <table role="grid" id="supports"></table>
+            <h2>Email and SMS statistics</h2>
+            <table>
                 <tr>
-                    <th class="shiftCell">Previous Shift</th>
-                    <th class="shiftCell">Current Shift</th>
-                    <th class="shiftCell">Next Shift</th>
+                    <th>Email</th>
+                    <th></th>
+                    <th>SMS</th>
+                    <th></th>
                 </tr>
                 <tr>
-                    <td class="shiftCell"></td>
-                    <td class="shiftCell" id="specialShifts"></td>
-                    <td class="shiftCell"></td>
+                    <td>Unanswered Emails</td>
+                    <td>Age of oldest unanswered email</td>
+                    <td>Unanswered texts</td>
+                    <td>Age of oldest unanswered text</td>
                 </tr>
                 <tr>
-                    <td class="shiftCell" id="previousShift"></td>
-                    <td class="shiftCell" id="currentShift"></td>
-                    <td class="shiftCell" id="nextShift"></td>
+                    <td id="unansweredEmail"></td>
+                    <td id="oldestEmail"></td>
+                    <td id="unansweredSms"></td>
+                    <td id="oldestSms"></td>
                 </tr>
             </table>
+            <h2>News</h2>
+            <h3 id="newsTitle" aria-live="polite">Loading News...</h3>
+            <h4 id="newsCreator">Nothing loaded yet</h4>
+            <div id="newsBody"></div>
         </div>
-        <h2>Listening Volunteers</h2>
-        <table role="grid" id="listeners"></table>
-        <h2>Support Volunteers</h2>
-        <table role="grid" id="supports"></table>
-        <h2>Email and SMS statistics</h2>
-        <table>
-            <tr>
-                <th>Email</th>
-                <th></th>
-                <th>SMS</th>
-                <th></th>
-            </tr>
-            <tr>
-                <td>Unanswered Emails</td>
-                <td>Age of oldest unanswered email</td>
-                <td>Unanswered texts</td>
-                <td>Age of oldest unanswered text</td>
-            </tr>
-            <tr>
-                <td id="unansweredEmail"></td>
-                <td id="oldestEmail"></td>
-                <td id="unansweredSms"></td>
-                <td id="oldestSms"></td>
-            </tr>
-        </table>
-        <h2>News</h2>
-        <h3 id="newsTitle" aria-live="polite">Loading News...</h3>
-        <h4 id="newsCreator">Nothing loaded yet</h4>
-        <div id="newsBody"></div>
+        <div id="loading">Loading...</div>
         {% if debug %}
         <hr>
         <p>
@@ -67,6 +70,6 @@
         </p>
         {% endif %}
         <script src="/static/locals.js?1557006514"></script>
-        <script src="/static/main.js?1557007549"></script>
+        <script src="/static/main.js?1557007893"></script>
     </body>
 </html>

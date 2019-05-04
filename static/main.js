@@ -13,6 +13,8 @@ const newsURL = baseURL + "news"
 let newsIndex = -1
 
 // Various elements on the page:
+const main = document.getElementById("main")
+const loading = document.getElementById("loading")
 const newsTitle = document.getElementById("newsTitle")
 const newsCreator = document.getElementById("newsCreator")
 const newsBody = document.getElementById("newsBody")
@@ -55,7 +57,11 @@ function loadJSON(url, func, onerror) {
 function getVersion(func) {
     // A function to get a unique number that (when changed), tells this page to reload.
     let req = new XMLHttpRequest()
-    req.onload = () => func(req.response)
+    req.onload = () => {
+        loading.hidden = true // Hide the loading text.
+        main.hidden = false // Show the main page.
+        func(req.response)
+    }
     req.open("GET", versionURL)
     req.send()
 }
@@ -114,8 +120,13 @@ function startTasks() {
 }
 
 window.onload = () => {
+    main.hidden = true
+    loading.hidden = false
     shiftsTable.hidden = true // Hide the shifts table until it's loaded.
-    getVersion((value) => version = value) // Set initial version.
+    getVersion((value) => {
+        loading.hidden = false // Hide the main page.
+        version = value // Set initial version.
+    })
     startTasks() // Start all the tasks.
 }
 
