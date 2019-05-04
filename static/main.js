@@ -119,7 +119,7 @@ function loadShifts() {
         for (let tag of [specialShifts, previousShift, currentShift, nextShift]) {
             clearElement(tag)
         }
-        for (let shift of data.sorted((a, b) => {
+        for (let shift of data.sort((a, b) => {
             if (a.name == b.name) {
                 return 0
             } else if (a.name < b.name) {
