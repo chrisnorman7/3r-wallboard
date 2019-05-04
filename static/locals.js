@@ -43,3 +43,5 @@ this.volunteerLink = function(volunteer, altText) {
     a.appendChild(i)
     return a
 }
+
+this.ignoredVolunteers = ["Sam 123", "Rotaonly"]

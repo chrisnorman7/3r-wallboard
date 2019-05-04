@@ -1,4 +1,4 @@
-/* globals isSupportPerson, updateInterval, volInterval, emailInterval, smsInterval, shiftInterval, newsInterval, volunteerLink */
+/* globals isSupportPerson, updateInterval, volInterval, emailInterval, smsInterval, shiftInterval, newsInterval, volunteerLink, ignoredVolunteers */
 
 let version = null
 
@@ -177,7 +177,6 @@ const supportsTable = document.getElementById("supports")
 function loadVolunteers() {
     status.innerText = "Loading volunteer list..."
     loadJSON(directoryURL, (data) => {
-        data = data.volunteers
         status.innerText = `Volunteers last loaded ${new Date()}.`
         for (let tag of [listenersTable, supportsTable]) {
             while (tag.rows.length) {
@@ -185,9 +184,7 @@ function loadVolunteers() {
             }
         }
         for (let volunteer of data.sort((a, b) => a.id - b.id)) {
-            if ([
-                "Sam 123", "Rotaonly"
-            ].includes(volunteer.name)) {
+            if (ignoredVolunteers.includes(volunteer.name)) {
                 continue
             }
             let table = null
@@ -209,8 +206,12 @@ function loadVolunteers() {
             cell.classList.add("volunteer")
             cell.classList.add(volunteerType)
             let span = document.createElement("span")
-            span.style.textAlign = "center"
             span.innerText = volunteer.name
+            span.style.textAlign = "center"
+            if (volunteer.on_leave) {
+                span.style.color = "red"
+                span.innerText += " (On Leave)"
+            }
             cell.appendChild(span)
             cell.appendChild(document.createElement("br"))
             cell.appendChild(volunteerLink(volunteer))

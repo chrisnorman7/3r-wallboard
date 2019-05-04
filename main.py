@@ -23,7 +23,7 @@ time_format = '%H:%M'
 shift_history_threshold = 5
 
 base_url = 'https://www.3r.org.uk/'
-directory_url = base_url + 'directory.json'
+directory_url = base_url + 'directory'
 volunteer_url = base_url + 'directory/%d?format=json'
 shift_url = base_url + 'shift.json'
 
@@ -53,7 +53,21 @@ def index():
 
 @app.route('/directory/')
 def directory():
-    return get_url(directory_url)
+    s = BeautifulSoup(get_url(directory_url), 'html.parser')
+    tds = s.find_all(
+        'td', attrs={'class': 'directory_list_property_friendly_name'}
+    )
+    results = []
+    for td in tds:
+        d = {}
+        a = td.find('a')
+        d['name'] = a.text
+        href = a.get('href')
+        d['url'] = 'https://www.3r.org.uk' + href
+        d['id'] = int(href.split('/')[-1])
+        d['on_leave'] = bool(td.find('img', attrs={'alt': 'On leave'}))
+        results.append(d)
+    return jsonify(results)
 
 
 @app.route('/login/', methods=['GET', 'POST'])
