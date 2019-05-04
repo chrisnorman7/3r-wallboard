@@ -42,7 +42,7 @@ function loadJSON(url, func, onerror) {
     req.open("GET", url)
     req.onload = () => {
         loading.hidden = true
-        // errorDiv.hidden = true
+        errorDiv.hidden = true
         main.hidden = false
         let j = null
         try {
@@ -56,7 +56,7 @@ function loadJSON(url, func, onerror) {
     }
     req.onerror = () => {
         main.hidden = true
-        // errorDiv.hidden = false
+        errorDiv.hidden = false
         onerror()
     }
     req.send()
@@ -67,7 +67,7 @@ function getVersion(func) {
     let req = new XMLHttpRequest()
     req.onload = () => {
         loading.hidden = true // Hide the loading text.
-        // errorDiv.hidden = true
+        errorDiv.hidden = true
         main.hidden = false // Show the main page.
         func(req.response)
     }
@@ -131,7 +131,7 @@ function startTasks() {
 window.onload = () => {
     main.hidden = true
     loading.hidden = false
-    // errorDiv.hidden = true
+    errorDiv.hidden = true
     shiftsTable.hidden = true // Hide the shifts table until it's loaded.
     getVersion((value) => {
         loading.hidden = false // Hide the main page.
