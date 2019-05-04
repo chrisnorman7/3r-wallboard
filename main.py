@@ -81,7 +81,7 @@ def get_url(url, auth=True, json=False):
 @app.route('/')
 def index():
     """Return the index page."""
-    return render_template('index.html')
+    return render_template('index.html', debug=app.config['DEBUG'])
 
 
 @app.route('/directory/')
