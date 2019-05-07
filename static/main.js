@@ -190,6 +190,7 @@ function loadShifts() {
                 for (let volunteer of shift.volunteers) {
                     let td = tr.insertCell(-1)
                     td.role = "gridcell" // Make it play nice with screen readers.
+                    td.style.alignContent = "center"
                     let h4 = document.createElement("h4")
                     h4.innerText = volunteer.name
                     td.appendChild(h4)
