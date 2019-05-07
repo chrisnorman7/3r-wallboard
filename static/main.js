@@ -183,11 +183,17 @@ function loadShifts() {
                 let h3 = document.createElement("h3")
                 h3.innerText = `${shift.name} (${shift.time})`
                 cell.appendChild(h3)
+                let t = document.createElement("table")
+                t.role = "grid"
+                let tr = t.insertRow(-1)
+                tr.role = "row"
                 for (let volunteer of shift.volunteers) {
+                    let td = tr.insertCell(-1)
+                    td.role = "gridcell" // Make it play nice with screen readers.
                     let h4 = document.createElement("h4")
                     h4.innerText = volunteer.name
-                    cell.appendChild(h4)
-                    // cell.appendChild(volunteerLink(volunteer))
+                    td.appendChild(h4)
+                    td.appendChild(volunteerLink(volunteer))
                     let p = document.createElement("p")
                     for (let detail of volunteer.details) {
                         let string = `${detail.name}: ${detail.value}`
@@ -202,8 +208,9 @@ function loadShifts() {
                         p.appendChild(value)
                         p.appendChild(document.createElement("br"))
                     }
-                    cell.appendChild(p)
+                    td.appendChild(p)
                 }
+                cell.appendChild(t)
             }
         }
     }, () => {

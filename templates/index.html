@@ -13,21 +13,21 @@
             <div id="shifts">
                 <h2>Branch Shifts</h2>
                 <p id="shiftsStatus">Loading shifts...</p>
-                <table id="shiftsTable">
-                    <tr>
+                <table role="grid" id="shiftsTable">
+                    <tr role="row">
                         <th class="shiftCell">Previous Shift</th>
                         <th class="shiftCell">Current Shift</th>
                         <th class="shiftCell">Next Shift</th>
                     </tr>
-                    <tr>
-                        <td class="shiftCell"></td>
-                        <td class="shiftCell" id="specialShifts"></td>
-                        <td class="shiftCell"></td>
+                    <tr role="row">
+                        <td class="shiftCell" role="gridcell"></td>
+                        <td class="shiftCell" id="specialShifts" role="gridcell"></td>
+                        <td class="shiftCell" role="gridcell"></td>
                     </tr>
-                    <tr>
-                        <td class="shiftCell" id="previousShift"></td>
-                        <td class="shiftCell" id="currentShift"></td>
-                        <td class="shiftCell" id="nextShift"></td>
+                    <tr role="row">
+                        <td class="shiftCell" id="previousShift" role="gridcell"></td>
+                        <td class="shiftCell" id="currentShift" role="gridcell"></td>
+                        <td class="shiftCell" id="nextShift" role="gridcell"></td>
                     </tr>
                 </table>
             </div>
@@ -78,6 +78,6 @@
         </p>
         {% endif %}
         <script src="/static/locals.js?1557006514"></script>
-        <script src="/static/main.js?1557247268"></script>
+        <script src="/static/main.js?1557249460"></script>
     </body>
 </html>
