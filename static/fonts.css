@@ -1,0 +1,19 @@
+@font-face {
+    font-family: "custom-font-bold";
+    src: url("/style/font/bold.woff2");
+}
+
+@font-face {
+    font-family: "custom-font-bold-italic";
+    src: url("/static/font/bolditalic.woff2");
+}
+
+@font-face {
+    font-family: "custom-font-italic";
+    src: url("/static/font/italic.woff2");
+}
+
+@font-face {
+    font-family: "custom-font";
+    src: url("/static/font/regular.woff2");
+}
