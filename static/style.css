@@ -1,3 +1,7 @@
+html {
+    overflow: hidden;
+}
+
 body {
     font-family: "custom-font", "custom-font-bold", "custom-font-bold-italic", "Arial";
     color: green;
