@@ -187,7 +187,7 @@ function loadShifts() {
                     let h4 = document.createElement("h4")
                     h4.innerText = volunteer.name
                     cell.appendChild(h4)
-                    cell.appendChild(volunteerLink(volunteer))
+                    // cell.appendChild(volunteerLink(volunteer))
                     let p = document.createElement("p")
                     for (let detail of volunteer.details) {
                         let string = `${detail.name}: ${detail.value}`
