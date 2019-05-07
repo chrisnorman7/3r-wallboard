@@ -21,7 +21,6 @@
 body {
     font-family: "custom-font", "custom-font-bold", "custom-font-bold-italic", "Arial";
     color: green;
-    width: 100%;
 }
 
 table#shiftsTable {
