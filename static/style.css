@@ -26,6 +26,7 @@ body {
 
 table#shiftsTable {
     border: 1px groove black;
+    width: 100%;
 }
 
 .shiftCell {
