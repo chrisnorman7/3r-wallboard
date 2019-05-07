@@ -4,13 +4,13 @@
         <title>Loading...</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="/static/style.css?1557244095">
+        <link rel="stylesheet" type="text/css" href="/static/style.css?1557245500">
     </head>
     <body>
         <div id="main">
             <h1>Status</h1>
-            <h2>Branch Shifts</h2>
-            <div>
+            <div id="shifts">
+                <h2>Branch Shifts</h2>
                 <p id="shiftsStatus">Loading shifts...</p>
                 <table id="shiftsTable">
                     <tr>
@@ -30,35 +30,41 @@
                     </tr>
                 </table>
             </div>
-            <h2>Listening Volunteers</h2>
-            <table role="grid" id="listeners"></table>
-            <h2>Support Volunteers</h2>
-            <table role="grid" id="supports"></table>
-            <h2>Email and SMS statistics</h2>
-            <table>
-                <tr>
-                    <th>Email</th>
-                    <th></th>
-                    <th>SMS</th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <td>Unanswered Emails</td>
-                    <td>Age of oldest unanswered email</td>
-                    <td>Unanswered texts</td>
-                    <td>Age of oldest unanswered text</td>
-                </tr>
-                <tr>
-                    <td id="unansweredEmail"></td>
-                    <td id="oldestEmail"></td>
-                    <td id="unansweredSms"></td>
-                    <td id="oldestSms"></td>
-                </tr>
-            </table>
-            <h2>News</h2>
-            <h3 id="newsTitle" aria-live="polite">Loading News...</h3>
-            <h4 id="newsCreator">Nothing loaded yet</h4>
-            <div id="newsBody"></div>
+            <div id="volunteers">
+                <h2>Listening Volunteers</h2>
+                <table role="grid" id="listeners"></table>
+                <h2>Support Volunteers</h2>
+                <table role="grid" id="supports"></table>
+            </div>
+            <div class="little" id="stats">
+                <h2>Email and SMS statistics</h2>
+                <table>
+                    <tr>
+                        <th>Email</th>
+                        <th></th>
+                        <th>SMS</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>Unanswered Emails</td>
+                        <td>Age of oldest unanswered email</td>
+                        <td>Unanswered texts</td>
+                        <td>Age of oldest unanswered text</td>
+                    </tr>
+                    <tr>
+                        <td id="unansweredEmail"></td>
+                        <td id="oldestEmail"></td>
+                        <td id="unansweredSms"></td>
+                        <td id="oldestSms"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="little" id="news">
+                <h2>News</h2>
+                <h3 id="newsTitle" aria-live="polite">Loading News...</h3>
+                <h4 id="newsCreator">Nothing loaded yet</h4>
+                <div id="newsBody"></div>
+            </div>
         </div>
         <div id="loading">Loading...</div>
         <div id="errorDiv">Connection lost!</div>
