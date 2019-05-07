@@ -317,7 +317,7 @@ def shifts():
                 # Now we use the cool code we stored earlier.
                 if code.startswith('telephone'):  # We want it!
                     volunteer['details'].append(
-                        dict(name=name, value=value)
+                        dict(name='T', value=value)
                     )
                 elif name == 'Friendly Name':  # Maybe a preferred name.
                     volunteer['name'] = value
