@@ -5,6 +5,7 @@ import re
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
 from datetime import datetime, timedelta
+from time import time
 from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup
@@ -120,15 +121,25 @@ def directory():
 
 
 # Cache images to reduce the requests to 3r.
+#
+# The image_timestamps dictionary will be checked for the last time the image
+# was pulled from 3r. If it's more than 3600 seconds old (1 hour), re-download
+# it from the server.
+image_timestamps = {}
 images = {}
 
 
 @app.route('/thumb/<int:id>')
 def thumb(id):
     """Get a volunteer thumbnail by volunteer ID."""
-    if id not in images:
+    now = time()
+    if (now - image_timestamps.get(id, 0)) > 3600:
         # We must load it from 3r.
+        print(f'Downloading image #{id}...')
+        image_timestamps[id] = now
         images[id] = get_url(f'{base_url}directory/{id}/photos/thumb.jpg',)
+    else:
+        print(f'We have already downloaded image #{id}.')
     # Return it from the dictionary.
     return images[id]
 
@@ -136,7 +147,9 @@ def thumb(id):
 @app.route('/email/')
 def email():
     """Get email stats."""
-    s = BeautifulSoup(get_url('http://www.ear-mail.org.uk/', auth=False), 'html.parser')
+    s = BeautifulSoup(
+        get_url('http://www.ear-mail.org.uk/', auth=False), 'html.parser'
+    )
     # Get the table that's inside another table, with no useful ID or
     # classes... This code is fragile!!
     table = s.find_all('table')[2]
