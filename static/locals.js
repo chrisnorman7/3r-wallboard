@@ -23,9 +23,6 @@ this.volInterval = 3600 * 1000
 // How often email stats should be checked.
 this.emailInterval = 60000
 
-// How often SMS stats should be checked.
-this.smsInterval = 60000
-
 // How often shift data should be retrieved.
 this.shiftInterval = 60000
 

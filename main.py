@@ -133,43 +133,24 @@ def thumb(id):
     return images[id]
 
 
-def textual_stats(url):
-    """Return a dictionary of stats for SMS and emails. Since they both use
-    essentially the same site (minus no spam column for SMS), we can use one
-    function for the job."""
-    s = BeautifulSoup(get_url(url, auth=False), 'html.parser')
+@app.route('/email/')
+def email():
+    """Get email stats."""
+    s = BeautifulSoup(get_url('http://www.ear-mail.org.uk/', auth=False), 'html.parser')
     # Get the table that's inside another table, with no useful ID or
     # classes... This code is fragile!!
     table = s.find_all('table')[2]
     # Get a list of strings from a list of "td" elements.
     tds = [td.text for td in table.find_all('td')]
-    if len(tds) == 7:
-        # We're dealing with emails.
-        unanswered = tds[4]
-        oldest = tds[5]
-    else:
-        # We are dealing with texts.
-        unanswered = tds[3]
-        oldest = tds[4]
-    # Make the number of unanswered somethings an integer, because JavaScript
-    # will be checking it to colour the output.
+    unanswered = tds[4]
+    oldest = tds[5]
+    # Convert unanswered to an integer, because JavaScript will be checking it
+    # to colour the output.
     unanswered = int(unanswered)
     # Let's get rid of the date, and just send along the duration as
     # hours:minutes.
     oldest = oldest.split('(')[1].strip(')')
     return jsonify(dict(unanswered=unanswered, oldest=oldest))
-
-
-@app.route('/email/')
-def email():
-    """Get email stats."""
-    return textual_stats('http://www.ear-mail.org.uk/')
-
-
-@app.route('/sms/')
-def sms():
-    """Get SMS sats."""
-    return textual_stats('http://smsstatus.samaritans.org/')
 
 
 @app.route('/shifts/')

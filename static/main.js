@@ -1,4 +1,4 @@
-/* globals isSupportPerson, updateInterval, volInterval, emailInterval, smsInterval, shiftInterval, newsInterval, volunteerLink, ignoredVolunteers, stickyNewsItemColour, nonstickyNewsItemColour, volunteersCellCount, presentVolunteerNameColour, onLeaveVolunteerNameColour, presentVolunteerNameSuffix, onLeaveVolunteerNameSuffix, pageTitle */
+/* globals isSupportPerson, updateInterval, volInterval, emailInterval, shiftInterval, newsInterval, volunteerLink, ignoredVolunteers, stickyNewsItemColour, nonstickyNewsItemColour, volunteersCellCount, presentVolunteerNameColour, onLeaveVolunteerNameColour, presentVolunteerNameSuffix, onLeaveVolunteerNameSuffix, pageTitle */
 
 let version = null // Used for updates.
 
@@ -106,7 +106,6 @@ function startTasks() {
     }, updateInterval)
     startTask(loadVolunteers, volInterval)
     startTask(loadEmailStats, emailInterval)
-    startTask(loadSmsStats, smsInterval)
     startTask(loadShifts, shiftInterval)
     startTask(() => { // Load the news.
         loadJSON(newsURL, (data) => {
@@ -275,49 +274,40 @@ function loadVolunteers() {
     })
 }
 
-function loadTextTable(data, unanswered, oldest) {
-    // Used to load both SMS and email statistics. All arguments should be dom elements.
-    unanswered.innerText = data.unanswered
-    let o = data.oldest
-    oldest.innerText = o
-    // Use a traffic light system to give a visual indicator of how urgent it is to start working on messages.
-    // Less than 2 hours, use green as the colour and show the text at a medium size.
-    // All the way up to 4 hours or more, the text turns black and gets massive.
-    let hours = Number(o.split(":")[0]) // The number of hours the oldest message has been hanging around.
-    let fs = null // Font size.
-    let bg = null // Background colour.
-    if (hours < 2) {
-        fs = "medium"
-        bg = "green"
-    } else if (hours < 3) {
-        fs = "large"
-        bg = "orange"
-    } else if (hours < 4) {
-        fs = "x-large"
-        bg = "red"
-    } else {
-        fs = "xx-large"
-        bg = "black"
-    }
-    for (let style of [unanswered.style, oldest.style]) { // Colour everything.
-        style.color = "white" // Set the text colour first.
-        style.fontSize = fs // Set font size.
-        style.background = bg // Set background colour.
-    }
-}
-
 function loadEmailStats() {
     // Load email statistics and pass them through loadTextTable.
     loadJSON(
         baseURL + "email/",
-        (data) => loadTextTable(data, document.getElementById("unansweredEmail"), document.getElementById("oldestEmail"))
-    )
-}
-
-function loadSmsStats() {
-    // Load SMS statistics and pass them through loadTextTable.
-    loadJSON(
-        baseURL + "sms/",
-        (data) => loadTextTable(data, document.getElementById("unansweredSms"), document.getElementById("oldestSms"))
+        (data) => {
+            let unanswered = document.getElementById("unansweredEmail")
+            let oldest = document.getElementById("oldestEmail")
+            unanswered.innerText = data.unanswered
+            let o = data.oldest
+            oldest.innerText = o
+            // Use a traffic light system to give a visual indicator of how urgent it is to start working on messages.
+            // Less than 2 hours, use green as the colour and show the text at a medium size.
+            // All the way up to 4 hours or more, the text turns black and gets massive.
+            let hours = Number(o.split(":")[0]) // The number of hours the oldest message has been hanging around.
+            let fs = null // Font size.
+            let bg = null // Background colour.
+            if (hours < 2) {
+                fs = "medium"
+                bg = "green"
+            } else if (hours < 3) {
+                fs = "large"
+                bg = "orange"
+            } else if (hours < 4) {
+                fs = "x-large"
+                bg = "red"
+            } else {
+                fs = "xx-large"
+                bg = "black"
+            }
+            for (let style of [unanswered.style, oldest.style]) { // Colour everything.
+                style.color = "white" // Set the text colour first.
+                style.fontSize = fs // Set font size.
+                style.background = bg // Set background colour.
+            }
+        }
     )
 }
