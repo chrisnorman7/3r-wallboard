@@ -195,6 +195,7 @@ function loadShifts() {
                     td.appendChild(h4)
                     td.appendChild(volunteerLink(volunteer))
                     let p = document.createElement("p")
+                    p.style.fontSize = "xx-large"
                     for (let detail of volunteer.details) {
                         let string = `${detail.name}: ${detail.value}`
                         let value = null
