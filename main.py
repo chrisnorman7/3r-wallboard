@@ -3,8 +3,8 @@
 import os.path
 import re
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, FileType
-from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timedelta
+from logging import StreamHandler, Logger, getLogger
 from time import time
 from urllib.parse import urlencode
 
@@ -23,7 +23,7 @@ import updater
 # don't care about it.
 ignored_rota_ids = [
     403,  # On holiday
-    2381,  # Ofice PC Booking
+    2381,  # Office PC Booking
     1496,  # Rye Hill Debrief
     720,  # Onley Debrief
 ]
@@ -413,13 +413,15 @@ def editor(filename):
 
 
 if __name__ == '__main__':
-    with open(
-        'wallboard.log', 'w'
-    ) as f, redirect_stdout(f), redirect_stderr(f):
+    with open('wallboard.log', 'w') as f:
+        h: StreamHandler = StreamHandler(f)
+        logger: Logger = getLogger()
+        logger.addHandler(h)
+        logger.setLevel('DEBUG')
         # Parse command line arguments.
         args = parser.parse_args()
         if args.allow_edits:  # Warn.
-            app.logger.warning('Editor enabled!!!')
+            logger.warning('Editor enabled!!!')
             # Now add the URL route.
             app.route('/edit/<filename>', methods=['GET', 'POST'])(editor)
         app.config['DEBUG'] = args.debug
@@ -430,8 +432,11 @@ if __name__ == '__main__':
         # Let's stop KeyboardInterrupt from being shown when we hit control c.
         get_hub().NOT_ERROR += (KeyboardInterrupt,)
         # Let's make an HTTP server.
+        logger.info('Running the server.')
         http_server = WSGIServer((args.interface, args.port), app, spawn=Pool())
         try:
             http_server.serve_forever()  # Watch that baby go!
         except KeyboardInterrupt:
-            pass  # Quit silently.
+            logger.info('Terminating (keyboard interrupt).')
+        except Exception:
+            logger.exception('Error running server:')
