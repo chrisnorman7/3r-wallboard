@@ -2,17 +2,16 @@
 
 import os.path
 import re
-
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, FileType
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timedelta
 from time import time
 from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup
 from dateparser import parse as parse_date
-from flask import (
-    abort, Flask, jsonify, render_template, request, redirect, url_for
-)
+from flask import (Flask, abort, jsonify, redirect, render_template, request,
+                   url_for)
 from gevent import get_hub
 from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
@@ -414,22 +413,25 @@ def editor(filename):
 
 
 if __name__ == '__main__':
-    # Parse command line arguments.
-    args = parser.parse_args()
-    if args.allow_edits:  # Warn.
-        app.logger.warning('Editor enabled!!!')
-        # Now add the URL route.
-        app.route('/edit/<filename>', methods=['GET', 'POST'])(editor)
-    app.config['DEBUG'] = args.debug
-    app.config['3R_APIKEY'] = args.api_key_file.read()
-    args.api_key_file.close()
-    app.config['USER_AGENT'] = args.user_agent_file.read()
-    args.user_agent_file.close()
-    # Let's stop KeyboardInterrupt from being shown when we hit control c.
-    get_hub().NOT_ERROR += (KeyboardInterrupt,)
-    # Let's make an HTTP server.
-    http_server = WSGIServer((args.interface, args.port), app, spawn=Pool())
-    try:
-        http_server.serve_forever()  # Watch that baby go!
-    except KeyboardInterrupt:
-        pass  # Quit silently.
+    with open(
+        'wallboard.log', 'w'
+    ) as f, redirect_stdout(f), redirect_stderr(f):
+        # Parse command line arguments.
+        args = parser.parse_args()
+        if args.allow_edits:  # Warn.
+            app.logger.warning('Editor enabled!!!')
+            # Now add the URL route.
+            app.route('/edit/<filename>', methods=['GET', 'POST'])(editor)
+        app.config['DEBUG'] = args.debug
+        app.config['3R_APIKEY'] = args.api_key_file.read()
+        args.api_key_file.close()
+        app.config['USER_AGENT'] = args.user_agent_file.read()
+        args.user_agent_file.close()
+        # Let's stop KeyboardInterrupt from being shown when we hit control c.
+        get_hub().NOT_ERROR += (KeyboardInterrupt,)
+        # Let's make an HTTP server.
+        http_server = WSGIServer((args.interface, args.port), app, spawn=Pool())
+        try:
+            http_server.serve_forever()  # Watch that baby go!
+        except KeyboardInterrupt:
+            pass  # Quit silently.
